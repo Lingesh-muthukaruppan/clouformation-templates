@@ -32,7 +32,7 @@ Resources:
         WriteCapacityUnits: !Ref WriteCapacityUnits
       Tags:
         - Key: 'Environment'
-          Value: 'Production'
+          Value: 'Dev'
 
 Outputs:
   TableName:
