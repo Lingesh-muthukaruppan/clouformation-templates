@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Nested stack for creating AWS Lake Formation resources'
+
+Parameters:
+  DataLakeBucketName:
+    Type: String
+    Description: 'Name of the S3 bucket to use as the data lake'
+  DatabaseName:
+    Type: String
+    Description: 'Name of the Glue/Lake Formation database to create'
+
+Resources:
+  LakeFormationDataLakeSettings:
+    Type: AWS::LakeFormation::DataLakeSettings
+    Properties:
+      Admins: 
+        - DataLakePrincipalIdentifier: !GetAtt LakeFormationAdminRole.Arn
+
+  LakeFormationResource:
+    Type: AWS::LakeFormation::Resource
+    Properties:
+      ResourceArn: !Sub 'arn:aws:s3:::${DataLakeBucketName}'
+      UseServiceLinkedRole: true
+
+  LakeFormationPermissions:
+    Type: AWS::LakeFormation::Permissions
+    Properties:
+      DataLakePrincipal:
+        DataLakePrincipalIdentifier: !GetAtt LakeFormationAdminRole.Arn
+      Resource:
+        DatabaseResource:
+          Name: !Ref DatabaseName
+      Permissions:
+        - CREATE_TABLE
+        - ALTER
+        - DROP
+
+  # LFTag:
+  #   Type: AWS::LakeFormation::Tag
+  #   Properties:
+  #     TagKey: 'Environment'
+  #     TagValues: 
+  #       - 'Development'
+  #       - 'Production'
+
+  LakeFormationAdminRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lakeformation.amazonaws.com
+                - glue.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSLakeFormationDataAdmin
+      Policies:
+        - PolicyName: S3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetBucketLocation
+                  - s3:ListBucket
+                  - s3:GetBucketAcl
+                Resource: !Sub 'arn:aws:s3:::${DataLakeBucketName}'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource: !Sub 'arn:aws:s3:::${DataLakeBucketName}/*'
+        - PolicyName: LakeFormationTagging
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lakeformation:AddLFTagsToResource
+                  - lakeformation:RemoveLFTagsFromResource
+                  - lakeformation:GetResourceLFTags
+                  - lakeformation:ListLFTags
+                  - lakeformation:GetLFTag
+                  - lakeformation:CreateLFTag
+                  - lakeformation:DeleteLFTag
+                  - lakeformation:UpdateLFTag
+                  - lakeformation:GrantPermissions
+                  - lakeformation:DescribeLFTag
+                Resource: '*'
+
+Outputs:
+  LakeFormationAdminRoleArn:
+    Description: 'LakeFormation IAM ROle'
+    Value: !GetAtt LakeFormationAdminRole.Arn

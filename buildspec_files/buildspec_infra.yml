@@ -1,0 +1,61 @@
+version: 0.2
+phases:
+  build:
+    commands:
+      - |
+        echo Build started on `date`
+        filename="sample_config_file.txt"
+        file=$CODEBUILD_SRC_DIR/config_files/"${filename}"
+        echo $file
+        echo Printing env variables
+        echo "${env}"
+        echo "${domain}"
+        KEY="${domain}_${env}"
+        echo "${KEY}"
+        VALUE=$(grep "^${KEY}=" "$file" | sed -e "s/^${KEY}=//")
+        if [ -z "$VALUE" ]; then
+        echo "Key '$KEY' not found in $file"
+        else echo "The value for '$KEY' is '$VALUE'"
+        fi
+        cfnfilename="main.yaml"
+        cfnfile=$CODEBUILD_SRC_DIR/cfn/"${cfnfilename}"
+        echo $cfnfile
+        bucketfilename="bucket.yaml"
+        bucketfile=$CODEBUILD_SRC_DIR/cfn/"${bucketfilename}"
+        echo $bucketfile
+        redshiftfilename="redshift.yaml"
+        redshiftfile=$CODEBUILD_SRC_DIR/cfn/"${redshiftfilename}"
+        echo $redshiftfile
+        gluedbfilename="glue_database.yaml"
+        gluedbfile=$CODEBUILD_SRC_DIR/cfn/"${gluedbfilename}"
+        echo $gluedbfile
+        gluecrawlerfilename="glue_crawler.yaml"
+        gluecrawlerfile=$CODEBUILD_SRC_DIR/cfn/"${gluecrawlerfilename}"
+        echo $gluecrawlerfile
+        dynamodbfilename="dynamodb.yaml"
+        dynamodbfile=$CODEBUILD_SRC_DIR/cfn/"${dynamodbfilename}"
+        echo $dynamodbfile
+        lffilename="lakeformation.yaml"
+        lffile=$CODEBUILD_SRC_DIR/cfn/"${lffilename}"
+        echo $lffile
+        aws s3 cp $bucketfile s3://mycicd-bucket-ap/cicd-files/
+        aws s3 cp $redshiftfile s3://mycicd-bucket-ap/cicd-files/
+        aws s3 cp $gluedbfile s3://mycicd-bucket-ap/cicd-files/
+        aws s3 cp $gluecrawlerfile s3://mycicd-bucket-ap/cicd-files/
+        aws s3 cp $dynamodbfile s3://mycicd-bucket-ap/cicd-files/
+        aws s3 cp $lffile s3://mycicd-bucket-ap/cicd-files/
+        bucketurl=https://s3.amazonaws.com/mycicd-bucket-ap/cicd-files/bucket.yaml
+        RedshiftUrl=https://s3.amazonaws.com/mycicd-bucket-ap/cicd-files/redshift.yaml
+        GlueDBurl=https://s3.amazonaws.com/mycicd-bucket-ap/cicd-files/glue_database.yaml
+        GlueCrawlerurl=https://s3.amazonaws.com/mycicd-bucket-ap/cicd-files/glue_crawler.yaml
+        dynamodburl=https://s3.amazonaws.com/mycicd-bucket-ap/cicd-files/dynamodb.yaml
+        lfurl=https://s3.amazonaws.com/mycicd-bucket-ap/cicd-files/lakeformation.yaml
+        aws cloudformation deploy \
+          --template-file $cfnfile \
+          --stack-name tpg-stack \
+          --parameter-overrides EnvType="${env}" DomainName="${domain}" BucketFilePath="${bucketurl}" RedshiftStackUrl="${RedshiftUrl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" LFStackUrl="${lfurl}" \
+          --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
+  post_build:
+    commands:
+      - aws cloudformation describe-stack-events --stack-name tpg-stack
+      - echo Build complete

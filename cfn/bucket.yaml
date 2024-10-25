@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create an S3 bucket
+
+Parameters:
+#S3 Parameters
+  EnvType:
+    Type: String
+    Default: "dev"
+    Description: The environment type (e.g., prod, dev)
+  DomainName:
+    Type: String
+    Description: The name of the domain
+
+Resources:
+  LandingS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: 
+         Fn::Join:
+          - "-"
+          - [ !Ref EnvType, !Ref DomainName, "landing-bucket-tpg"]
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256        
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: Private
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireOldVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 30
+
+  RawS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: 
+         Fn::Join:
+          - "-"
+          - [ !Ref EnvType, !Ref DomainName, "raw-bucket-tpg"]
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: Private
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireOldVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 30
+
+  EnrichedS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: 
+         Fn::Join:
+          - "-"
+          - [ !Ref EnvType, !Ref DomainName, "enriched-bucket-tpg"]
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256        
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: Private
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireOldVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 30             
+
+Outputs:
+  LandingBucketName:
+    Description: The name of the Landing S3 bucket
+    Value: !Ref LandingS3Bucket
+  RawS3BucketName:
+    Description: The name of the Raw S3 bucket
+    Value: !Ref RawS3Bucket
+  EnrichedS3BucketName:
+    Description: The name of the Enriched S3 bucket
+    Value: !Ref EnrichedS3Bucket
+
