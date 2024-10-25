@@ -8,8 +8,8 @@ phases:
         file=$CODEBUILD_SRC_DIR/config_files/"${filename}"
         echo $file
         echo Printing env variables
-        echo "${env}"
-        echo "${domain}"
+        echo "Environment: ${env}"
+        echo "Domain: ${domain}"
         KEY="${domain}_${env}"
         echo "${KEY}"
         VALUE=$(grep "^${KEY}=" "$file" | sed -e "s/^${KEY}=//")
