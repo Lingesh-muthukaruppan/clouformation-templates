@@ -35,7 +35,7 @@ Parameters:
   TableName:
     Type: String
     Description: 'Name of the DynamoDB table'
-    Default: 'my-dynamodb-table'
+    Default: 'tpg-dynamodb-table'
   ReadCapacityUnits:
     Type: Number
     Description: 'Read capacity units for the table'
@@ -84,6 +84,11 @@ Resources:
         ReadCapacityUnits: !Ref ReadCapacityUnits
         WriteCapacityUnits: !Ref WriteCapacityUnits
 
+  RedshiftiamRoleStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref RedshiftiamRoleUrl     
+
 Outputs:
   LandingBucketName:
     Description: The name of the Landing S3 bucket
@@ -103,5 +108,8 @@ Outputs:
   TableName:
     Description: 'Name of the created DynamoDB table'
     Value: !GetAtt DynamoDBStack.Outputs.TableName
+  RedshiftIamRoleName:
+    Description: 'Name of the created Redshift IAM role'
+    Value: !GetAtt RedshiftiamRoleStack.Outputs.RedshiftIamRoleName  
 
 

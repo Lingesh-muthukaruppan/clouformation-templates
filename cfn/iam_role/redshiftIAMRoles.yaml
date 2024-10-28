@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  RedshiftServerlessReadOnlyRole:
+    Type: "AWS::IAM::Role"
+    Properties: 
+      RoleName: "RedshiftServerlessReadOnlyRole"
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: "Allow"
+            Principal: 
+              Service: 
+                - "redshift.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "RedshiftServerlessReadOnlyPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "redshift-serverless:GetWorkgroup"
+                  - "redshift-serverless:ListWorkgroups"
+                  - "redshift-serverless:GetNamespace"
+                  - "redshift-serverless:ListNamespaces"
+                  - "redshift-serverless:GetSnapshot"
+                  - "redshift-serverless:ListSnapshots"
+                  - "redshift-serverless:GetUsageLimit"
+                  - "redshift-serverless:ListUsageLimits"
+                  - "redshift-serverless:GetTableRestoreStatus"
+                  - "redshift-serverless:ListTableRestoreStatuses"
+                  - "redshift-serverless:GetEndpointAccess"
+                  - "redshift-serverless:ListEndpointAccess"
+                  - "redshift:GetClusterCredentials"
+                  - "redshift:DescribeClusters"
+                  - "redshift:DescribeTables"
+                  - "redshift:DescribeDatabase"
+                  - "redshift:ExecuteQuery"
+                Resource: "*"
+
+Outputs:
+  RedshiftIamRoleName:
+    Description: 'Name of the created DynamoDB table'
+    Value: !Ref RedshiftServerlessReadOnlyRole
