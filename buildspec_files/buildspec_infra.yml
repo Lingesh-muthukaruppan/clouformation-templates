@@ -54,7 +54,7 @@ phases:
         dynamodburl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dynamodb.yaml
         redshiftiamroleurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/redshiftIAMRoles.yaml
         redshiftvpcurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/redshiftVPCSubnet.yaml
-        redshiftserverlessurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/redshiftVPCSubnet.yaml
+        redshiftserverlessurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/redshiftServerless.yaml
         aws cloudformation deploy \
           --template-file $cfnfile \
           --stack-name tpg-stack \
