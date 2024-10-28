@@ -24,7 +24,7 @@ Parameters:
 
   VPCSecurityGroupIds:
     Description: Comma-separated list of security group IDs
-    Type: CommaDelimitedList
+    Type: String
 
   SubnetIds:
     Description: Comma-separated list of subnet IDs for the Redshift Serverless workgroup
@@ -50,7 +50,7 @@ Resources:
       WorkgroupName: !Ref WorkgroupName
       NamespaceName: !Ref RedshiftNamespace
       PubliclyAccessible: true
-      SecurityGroupIds: !Ref SecurityGroupId
+      SecurityGroupIds: !Ref VPCSecurityGroupIds
       SubnetIds: !Ref SubnetIds
       BaseCapacity: 8  # Measured in Redshift Processing Units (RPUs)
 
