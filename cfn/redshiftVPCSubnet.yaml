@@ -189,8 +189,8 @@ Outputs:
   VpcId:
     Description: The VPC ID
     Value: !Ref MyVPC
-  Export:
-      Name: VpcId  
+    Export:
+      Name: VpcId
 
   PublicSubnet1Id:
     Description: The ID of the first public subnet
