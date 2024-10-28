@@ -157,13 +157,15 @@ Parameters:
     AllowedPattern: '[a-zA-Z0-9!@#$%^&*()_+=-]*'
     ConstraintDescription: Must contain alphanumeric characters and symbol.
 
-  VPCSecurityGroupIds:
-    Description: Comma-separated list of security group IDs
-    Type: CommaDelimitedList
+  # VPCSecurityGroupIds:
+  #   Description: Comma-separated list of security group IDs
+  #   Type: CommaDelimitedList
+  #   Default: !Ref SecurityGroupId
     
-  SubnetIds:
-    Description: Comma-separated list of subnet IDs for the Redshift Serverless workgroup
-    Type: CommaDelimitedList
+  # SubnetIds:
+  #   Description: Comma-separated list of subnet IDs for the Redshift Serverless workgroup
+  #   Type: CommaDelimitedList
+  #   Default: !Join [ ",", [ !Ref PublicSubnet1Id, !Ref PublicSubnet2Id, !Ref PublicSubnet3Id ] ] 
     
   RedshiftServerlessStackUrl:
     Type: String
@@ -235,8 +237,8 @@ Resources:
         DatabaseName: !Ref DatabaseName
         AdminUsername: !Ref AdminUsername
         AdminUserPassword: !Ref AdminUserPassword
-        VPCSecurityGroupIds: !Ref SecurityGroupId
-        SubnetIds: !Join [ ",", [ !Ref PublicSubnet1Id, !Ref PublicSubnet2Id, !Ref PublicSubnet3Id ] ]        
+        # VPCSecurityGroupIds: !Ref VPCSecurityGroupIds
+        # SubnetIds: !Ref SubnetIds        
 
 Outputs:
   LandingBucketName:

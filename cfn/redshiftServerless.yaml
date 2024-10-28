@@ -22,13 +22,13 @@ Parameters:
     Description: Master password for the Redshift Serverless database
     Type: String
 
-  VPCSecurityGroupIds:
-    Description: Comma-separated list of security group IDs
-    Type: CommaDelimitedList
+  # VPCSecurityGroupIds:
+  #   Description: Comma-separated list of security group IDs
+  #   Type: CommaDelimitedList
 
-  SubnetIds:
-    Description: Comma-separated list of subnet IDs for the Redshift Serverless workgroup
-    Type: CommaDelimitedList
+  # SubnetIds:
+  #   Description: Comma-separated list of subnet IDs for the Redshift Serverless workgroup
+  #   Type: CommaDelimitedList
 
 Resources:
   RedshiftNamespace:
@@ -50,8 +50,12 @@ Resources:
       WorkgroupName: !Ref WorkgroupName
       NamespaceName: !Ref RedshiftNamespace
       PubliclyAccessible: true
-      SecurityGroupIds: !Ref VPCSecurityGroupIds
-      SubnetIds: !Ref SubnetIds
+      SecurityGroupIds: 
+        - !ImportValue SecurityGroupId
+      SubnetIds:
+        - !ImportValue PublicSubnet1Id
+        - !ImportValue PublicSubnet2Id
+        - !ImportValue PublicSubnet3Id
       BaseCapacity: 8  # Measured in Redshift Processing Units (RPUs)
 
 Outputs:

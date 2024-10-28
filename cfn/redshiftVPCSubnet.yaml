@@ -189,31 +189,47 @@ Outputs:
   VpcId:
     Description: The VPC ID
     Value: !Ref MyVPC
+  Export:
+      Name: VpcId  
 
   PublicSubnet1Id:
     Description: The ID of the first public subnet
     Value: !Ref PublicSubnet1
+    Export:
+      Name: PublicSubnet1Id
 
   PublicSubnet2Id:
     Description: The ID of the second public subnet
     Value: !Ref PublicSubnet2
+    Export:
+      Name: PublicSubnet2Id
 
   PublicSubnet3Id:
     Description: The ID of the third public subnet
     Value: !Ref PublicSubnet3
+    Export:
+      Name: PublicSubnet3Id
 
   PrivateSubnet1Id:
     Description: The ID of the first private subnet
     Value: !Ref PrivateSubnet1
+    Export:
+      Name: PrivateSubnet1Id
 
   PrivateSubnet2Id:
     Description: The ID of the second private subnet
     Value: !Ref PrivateSubnet2
+    Export:
+      Name: PrivateSubnet2Id
 
   PrivateSubnet3Id:
     Description: The ID of the third private subnet
     Value: !Ref PrivateSubnet3
+    Export:
+      Name: PrivateSubnet3Id
 
   SecurityGroupId:
     Description: The ID of the Redshift Security Group
     Value: !Ref RedshiftSecurityGroup
+    Export:
+      Name: SecurityGroupId
