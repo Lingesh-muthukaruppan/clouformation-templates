@@ -9,24 +9,17 @@ Parameters:
     Description: The environment type (e.g., prod, dev)
   DomainName:
     Type: String
+    Default: "finance"
     Description: The name of the domain
   BucketFilePath:
     Type: String
     Description: bucket yaml path
 #GlueDB Parameters
-  DatabaseName:
-    Type: String
-    Default: 'tpg-glue-db'  
-    Description: 'Name of the Glue Database'
   GlueDBPath:
     Type: String
     Description: Database yaml path    
 
 #Crawler Parameters
-  CrawlerName:
-    Type: String
-    Default: 'tpg-glue-crawler'
-    Description: 'Name of the Glue Crawler'
   GlueCrawlerPath:
     Type: String
     Description: Crawler yaml path    
@@ -186,7 +179,8 @@ Resources:
     Properties:
       TemplateURL: !Ref GlueDBPath
       Parameters:
-        DatabaseName: !Ref DatabaseName
+        EnvType: !Ref EnvType
+        DomainName: !Ref DomainName
 
   GlueCrawler:
     Type: AWS::CloudFormation::Stack
