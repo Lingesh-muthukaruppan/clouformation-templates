@@ -177,7 +177,8 @@ Resources:
     Properties:
       TemplateURL: !Ref GlueCrawlerPath
       Parameters:
-        CrawlerName: !Ref CrawlerName
+        EnvType: !Ref EnvType
+        DomainName: !Ref DomainName
         DatabaseName: !GetAtt GlueDatabase.Outputs.DatabaseName
         S3TargetPath: !GetAtt s3buckets.Outputs.TrustedS3BucketName
 
