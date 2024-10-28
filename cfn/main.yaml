@@ -237,7 +237,7 @@ Resources:
         DatabaseName: !Ref DatabaseName
         AdminUsername: !Ref AdminUsername
         AdminUserPassword: !Ref AdminUserPassword
-        VPCSecurityGroupIds: !GetAtt RedshiftVPCStack.Outputs.SecurityGroupId
+        VPCSecurityGroupIds:  !Join [ ",", [ !GetAtt RedshiftVPCStack.Outputs.SecurityGroupId ]]
         SubnetIds: !Join [ ",", [ !GetAtt RedshiftVPCStack.Outputs.PublicSubnet1Id, !GetAtt RedshiftVPCStack.Outputs.PublicSubnet2Id, !GetAtt RedshiftVPCStack.Outputs.PublicSubnet3Id ]]        
 
 Outputs:
