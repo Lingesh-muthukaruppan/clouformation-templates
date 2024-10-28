@@ -53,7 +53,63 @@ Parameters:
   #Redshift Parameters
   RedshiftiamRoleUrl:
     Type: String
-    Description: 'Name of the Redshift Iam Role' 
+    Description: 'Name of the Redshift Iam Role'
+
+  #Redshift Subnet Parameters
+  VpcCidr:
+    Description: CIDR block for the VPC
+    Type: String
+    Default: 10.0.0.0/16
+
+  PublicSubnet1Cidr:
+    Description: CIDR block for the first public subnet
+    Type: String
+    Default: 10.0.1.0/24
+
+  PublicSubnet2Cidr:
+    Description: CIDR block for the second public subnet
+    Type: String
+    Default: 10.0.2.0/24
+
+  PublicSubnet3Cidr:
+    Description: CIDR block for the second public subnet
+    Type: String
+    Default: 10.0.3.0/24
+
+  PrivateSubnet1Cidr:
+    Description: CIDR block for the first private subnet
+    Type: String
+    Default: 10.0.4.0/27
+
+  PrivateSubnet2Cidr:
+    Description: CIDR block for the second private subnet
+    Type: String
+    Default: 10.0.5.0/27
+
+  PrivateSubnet3Cidr:
+    Description: CIDR block for the second private subnet
+    Type: String
+    Default: 10.0.6.0/27
+
+  AvailabilityZone1:
+    Description: First Availability Zone for subnets
+    Type: String
+    Default: us-east-1a
+
+  AvailabilityZone2:
+    Description: Second Availability Zone for subnets
+    Type: String
+    Default: us-east-1b
+
+  AvailabilityZone3:
+    Description: Second Availability Zone for subnets
+    Type: String
+    Default: us-east-1c 
+
+  RedshiftVPCStackUrl:
+    Type: String
+    Description: 'Name of the VPC stack'
+      
 
 Resources:
   s3buckets:
@@ -92,7 +148,23 @@ Resources:
   RedshiftiamRoleStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Ref RedshiftiamRoleUrl     
+      TemplateURL: !Ref RedshiftiamRoleUrl  
+
+  RedshiftVPCStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref RedshiftVPCStackUrl
+      Parameters:
+        VpcCidr: !Ref VpcCidr
+        PublicSubnet1Cidr: !Ref PublicSubnet1Cidr
+        PublicSubnet2Cidr: !Ref PublicSubnet2Cidr
+        PublicSubnet3Cidr: !Ref PublicSubnet3Cidr
+        PrivateSubnet1Cidr: !Ref PrivateSubnet1Cidr
+        PrivateSubnet2Cidr: !Ref PrivateSubnet2Cidr
+        PrivateSubnet3Cidr: !Ref PrivateSubnet3Cidr
+        AvailabilityZone1: !Ref AvailabilityZone1
+        AvailabilityZone2: !Ref AvailabilityZone2
+        AvailabilityZone3: !Ref AvailabilityZone3      
 
 Outputs:
   LandingBucketName:
@@ -115,6 +187,30 @@ Outputs:
     Value: !GetAtt DynamoDBStack.Outputs.TableName
   RedshiftIamRoleName:
     Description: 'Name of the created Redshift IAM role'
-    Value: !GetAtt RedshiftiamRoleStack.Outputs.RedshiftIamRoleName  
+    Value: !GetAtt RedshiftiamRoleStack.Outputs.RedshiftIamRoleName
+  VpcId:
+    Description: 'The VPC ID'
+    Value: !GetAtt RedshiftVPCStack.Outputs.VpcId
+  PublicSubnet1Id:
+    Description: 'The ID of the first public subnet'
+    Value: !GetAtt RedshiftVPCStack.Outputs.PublicSubnet1Id
+  PublicSubnet2Id:
+    Description: 'The ID of the second public subnet'
+    Value: !GetAtt RedshiftVPCStack.Outputs.PublicSubnet2Id
+  PublicSubnet3Id:
+    Description: 'The ID of the third public subnet'
+    Value: !GetAtt RedshiftVPCStack.Outputs.PublicSubnet3Id
+  PrivateSubnet1Id:
+    Description: 'The ID of the first private subnet'
+    Value: !GetAtt RedshiftVPCStack.Outputs.PrivateSubnet1Id
+  PrivateSubnet2Id:
+    Description: 'The ID of the second private subnet'
+    Value: !GetAtt RedshiftVPCStack.Outputs.PrivateSubnet2Id
+  PrivateSubnet3Id:
+    Description: 'The ID of the third private subnet'
+    Value: !GetAtt RedshiftVPCStack.Outputs.PrivateSubnet3Id
+  SecurityGroupId:
+    Description: 'The ID of the Redshift Security Group'
+    Value: !GetAtt RedshiftVPCStack.Outputs.SecurityGroupId                 
 
 

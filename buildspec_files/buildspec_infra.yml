@@ -35,20 +35,25 @@ phases:
         redshiftiamrolefilename="redshiftIAMRoles.yaml"
         redshiftiamrolefile=$CODEBUILD_SRC_DIR/cfn/iam_role/"${redshiftiamrolefilename}"
         echo $redshiftiamrolefile
+        redshiftvpcfilename="redshiftVPCSubnet.yaml"
+        redshiftvpcfile=$CODEBUILD_SRC_DIR/cfn/"${redshiftvpcfilename}"
+        echo $redshiftvpcfile
         aws s3 cp $bucketfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $gluedbfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $gluecrawlerfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $dynamodbfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $redshiftiamrolefile s3://tpg-my-bucket/cicd-files/
+        aws s3 cp $redshiftvpcfile s3://tpg-my-bucket/cicd-files/
         bucketurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/bucket.yaml
         GlueDBurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_database.yaml
         GlueCrawlerurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_crawler.yaml
         dynamodburl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dynamodb.yaml
         redshiftiamroleurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/redshiftIAMRoles.yaml
+        redshiftvpcurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/redshiftVPCSubnet.yaml
         aws cloudformation deploy \
           --template-file $cfnfile \
           --stack-name tpg-stack \
-          --parameter-overrides EnvType="${env}" DomainName="${domain}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftiamRoleUrl="${redshiftiamroleurl}" \
+          --parameter-overrides EnvType="${env}" DomainName="${domain}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftiamRoleUrl="${redshiftiamroleurl}" RedshiftVPCStackUrl="${redshiftvpcurl}" \
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
   post_build:
     commands:

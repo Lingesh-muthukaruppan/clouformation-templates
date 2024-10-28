@@ -1,0 +1,219 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create a VPC with public and private subnets in two Availability Zones.
+
+Parameters:
+  VpcCidr:
+    Description: CIDR block for the VPC
+    Type: String
+
+  PublicSubnet1Cidr:
+    Description: CIDR block for the first public subnet
+    Type: String
+
+  PublicSubnet2Cidr:
+    Description: CIDR block for the second public subnet
+    Type: String
+
+  PublicSubnet3Cidr:
+    Description: CIDR block for the second public subnet
+    Type: String
+
+  PrivateSubnet1Cidr:
+    Description: CIDR block for the first private subnet
+    Type: String
+
+  PrivateSubnet2Cidr:
+    Description: CIDR block for the second private subnet
+    Type: String
+
+  PrivateSubnet3Cidr:
+    Description: CIDR block for the second private subnet
+    Type: String
+
+  AvailabilityZone1:
+    Description: First Availability Zone for subnets
+    Type: String
+
+  AvailabilityZone2:
+    Description: Second Availability Zone for subnets
+    Type: String
+
+  AvailabilityZone3:
+    Description: Second Availability Zone for subnets
+    Type: String
+
+Resources:
+  MyVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidr
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: MyVPC
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: MyInternetGateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MyVPC
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: !Ref PublicSubnet1Cidr
+      AvailabilityZone: !Ref AvailabilityZone1
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: PublicSubnet1
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: !Ref PublicSubnet2Cidr
+      AvailabilityZone: !Ref AvailabilityZone2
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: PublicSubnet2
+
+  PublicSubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: !Ref PublicSubnet3Cidr
+      AvailabilityZone: !Ref AvailabilityZone3
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: PublicSubnet3
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: !Ref PrivateSubnet1Cidr
+      AvailabilityZone: !Ref AvailabilityZone1
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: PrivateSubnet1
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: !Ref PrivateSubnet2Cidr
+      AvailabilityZone: !Ref AvailabilityZone2
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: PrivateSubnet2
+
+  PrivateSubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: !Ref PrivateSubnet3Cidr
+      AvailabilityZone: !Ref AvailabilityZone3
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: PrivateSubnet3
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MyVPC
+      Tags:
+        - Key: Name
+          Value: PublicRouteTable
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet3
+      RouteTableId: !Ref PublicRouteTable
+
+  RedshiftSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow inbound access to Redshift
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5439  # Redshift default port
+          ToPort: 5439
+          CidrIp: 0.0.0.0/0  # Allows access from any IP. Modify to restrict access.
+      SecurityGroupEgress:
+        - IpProtocol: -1  # -1 means all protocols
+          FromPort: -1     # Allows all outbound ports
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: RedshiftSecurityGroup
+
+Outputs:
+  VpcId:
+    Description: The VPC ID
+    Value: !Ref MyVPC
+
+  PublicSubnet1Id:
+    Description: The ID of the first public subnet
+    Value: !Ref PublicSubnet1
+
+  PublicSubnet2Id:
+    Description: The ID of the second public subnet
+    Value: !Ref PublicSubnet2
+
+  PublicSubnet3Id:
+    Description: The ID of the third public subnet
+    Value: !Ref PublicSubnet3
+
+  PrivateSubnet1Id:
+    Description: The ID of the first private subnet
+    Value: !Ref PrivateSubnet1
+
+  PrivateSubnet2Id:
+    Description: The ID of the second private subnet
+    Value: !Ref PrivateSubnet2
+
+  PrivateSubnet3Id:
+    Description: The ID of the third private subnet
+    Value: !Ref PrivateSubnet3
+
+  SecurityGroupId:
+    Description: The ID of the Redshift Security Group
+    Value: !Ref RedshiftSecurityGroup
