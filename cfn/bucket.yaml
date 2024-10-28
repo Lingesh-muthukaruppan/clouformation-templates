@@ -134,5 +134,5 @@ Outputs:
     Description: The name of the Raw S3 bucket
     Value: !Ref RawS3Bucket
   TrustedS3BucketName:
-    Description: The name of the Enriched S3 bucket
+    Description: The name of the Trusted S3 bucket
     Value: !Ref TrustedS3Bucket

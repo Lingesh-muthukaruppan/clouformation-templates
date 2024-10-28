@@ -149,16 +149,6 @@ Parameters:
     Default: Admin1234567
     AllowedPattern: '[a-zA-Z0-9!@#$%^&*()_+=-]*'
     ConstraintDescription: Must contain alphanumeric characters and symbol.
-
-  # VPCSecurityGroupIds:
-  #   Description: Comma-separated list of security group IDs
-  #   Type: CommaDelimitedList
-  #   Default: !Ref SecurityGroupId
-    
-  # SubnetIds:
-  #   Description: Comma-separated list of subnet IDs for the Redshift Serverless workgroup
-  #   Type: CommaDelimitedList
-  #   Default: !Join [ ",", [ !Ref PublicSubnet1Id, !Ref PublicSubnet2Id, !Ref PublicSubnet3Id ] ] 
     
   RedshiftServerlessStackUrl:
     Type: String
@@ -189,7 +179,7 @@ Resources:
       Parameters:
         CrawlerName: !Ref CrawlerName
         DatabaseName: !GetAtt GlueDatabase.Outputs.DatabaseName
-        S3TargetPath: !GetAtt s3buckets.Outputs.LandingBucketName
+        S3TargetPath: !GetAtt s3buckets.Outputs.TrustedS3BucketName
 
   DynamoDBStack:
     Type: AWS::CloudFormation::Stack
@@ -241,9 +231,9 @@ Outputs:
   RawS3BucketName:
     Description: The name of the Raw S3 bucket
     Value: !GetAtt s3buckets.Outputs.RawS3BucketName
-  EnrichedS3BucketName:
-    Description: The name of the Enriched S3 bucket
-    Value: !GetAtt s3buckets.Outputs.EnrichedS3BucketName
+  TrustedS3BucketName:
+    Description: The name of the Trusted S3 bucket
+    Value: !GetAtt s3buckets.Outputs.TrustedS3BucketName
   DatabaseName:
     Description: 'Name of the Glue Database'
     Value:  !GetAtt GlueDatabase.Outputs.DatabaseName
