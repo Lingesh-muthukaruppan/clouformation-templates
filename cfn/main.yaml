@@ -50,6 +50,11 @@ Parameters:
     Type: String
     Description: 'Dynamo DB S3 URL of the nested stack template'
 
+  #Redshift Parameters
+  RedshiftiamRoleUrl:
+    Type: String
+    Description: 'Name of the Redshift Iam Role' 
+
 Resources:
   s3buckets:
     Type: AWS::CloudFormation::Stack
