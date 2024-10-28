@@ -50,12 +50,8 @@ Resources:
       WorkgroupName: !Ref WorkgroupName
       NamespaceName: !Ref RedshiftNamespace
       PubliclyAccessible: true
-      SecurityGroupIds: 
-        - !ImportValue SecurityGroupId
-      SubnetIds:
-        - !ImportValue PublicSubnet1Id
-        - !ImportValue PublicSubnet2Id
-        - !ImportValue PublicSubnet3Id
+      SecurityGroupIds: !Ref SecurityGroupId
+      SubnetIds: !Ref SubnetIds
       BaseCapacity: 8  # Measured in Redshift Processing Units (RPUs)
 
 Outputs:
