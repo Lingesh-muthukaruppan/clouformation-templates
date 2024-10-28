@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create Amazon Redshift Serverless resources.
+
+Parameters:
+  NamespaceName:
+    Description: Name for the Redshift Serverless namespace
+    Type: String
+
+  WorkgroupName:
+    Description: Name for the Redshift Serverless workgroup
+    Type: String
+
+  DatabaseName:
+    Description: Name of the database in the Redshift Serverless namespace
+    Type: String
+
+  AdminUsername:
+    Description: Master username for the Redshift Serverless database
+    Type: String
+
+  AdminUserPassword:
+    Description: Master password for the Redshift Serverless database
+    Type: String
+
+  VPCSecurityGroupIds:
+    Description: Comma-separated list of security group IDs
+    Type: CommaDelimitedList
+
+  SubnetIds:
+    Description: Comma-separated list of subnet IDs for the Redshift Serverless workgroup
+    Type: CommaDelimitedList
+
+Resources:
+  RedshiftNamespace:
+    Type: AWS::RedshiftServerless::Namespace
+    Properties:
+      NamespaceName: !Ref NamespaceName
+      DbName: !Ref DatabaseName
+      AdminUsername: !Ref AdminUsername
+      AdminUserPassword: !Ref AdminUserPassword
+      IamRoles: []  # Add IAM Role ARNs if needed
+      LogExports:
+        - userlog
+        - connectionlog
+        - useractivitylog
+
+  RedshiftWorkgroup:
+    Type: AWS::RedshiftServerless::Workgroup
+    Properties:
+      WorkgroupName: !Ref WorkgroupName
+      NamespaceName: !Ref RedshiftNamespace
+      PubliclyAccessible: true
+      SecurityGroupIds: !Ref VPCSecurityGroupIds
+      SubnetIds: !Ref SubnetIds
+      BaseCapacity: 8  # Measured in Redshift Processing Units (RPUs)
+
+Outputs:
+  WorkgroupEndpoint:
+    Description: The endpoint of the Redshift Serverless workgroup
+    Value: !GetAtt RedshiftWorkgroup.Workgroup.Endpoint.Address

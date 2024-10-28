@@ -109,6 +109,65 @@ Parameters:
   RedshiftVPCStackUrl:
     Type: String
     Description: 'Name of the VPC stack'
+
+  #Redshift Serverless Parameters
+  NamespaceName:
+    Description: Name for the Redshift Serverless namespace
+    Type: String
+    Default: my-serverless-namespace
+    AllowedPattern: '^[a-zA-Z0-9-]+$'
+    MinLength: 3
+    MaxLength: 64
+    ConstraintDescription: Must be a valid namespace name.
+
+  WorkgroupName:
+    Description: Name for the Redshift Serverless workgroup
+    Type: String
+    Default: my-serverless-workgroup
+    AllowedPattern: '^[a-zA-Z0-9-]+$'
+    MinLength: 3
+    MaxLength: 64
+    ConstraintDescription: Must be a valid workgroup name.
+
+  DatabaseName:
+    Description: Name of the database in the Redshift Serverless namespace
+    Type: String
+    Default: mydatabase
+    AllowedPattern: '^[a-zA-Z][a-zA-Z0-9]*$'
+    MinLength: 1
+    MaxLength: 127
+    ConstraintDescription: Must be alphanumeric and start with a letter.
+
+  AdminUsername:
+    Description: Master username for the Redshift Serverless database
+    Type: String
+    Default: admin
+    AllowedPattern: '^[a-zA-Z][a-zA-Z0-9]*$'
+    MinLength: 1
+    MaxLength: 128
+    ConstraintDescription: Must begin with a letter and be alphanumeric.
+
+  AdminUserPassword:
+    Description: Master password for the Redshift Serverless database
+    Type: String
+    NoEcho: true
+    MinLength: 8
+    MaxLength: 64
+    Default: Admin1234567
+    AllowedPattern: '[a-zA-Z0-9!@#$%^&*()_+=-]*'
+    ConstraintDescription: Must contain alphanumeric characters and symbol.
+
+  VPCSecurityGroupIds:
+    Description: Comma-separated list of security group IDs
+    Type: CommaDelimitedList
+    
+  SubnetIds:
+    Description: Comma-separated list of subnet IDs for the Redshift Serverless workgroup
+    Type: CommaDelimitedList
+    
+  RedshiftServerlessStackUrl:
+    Type: String
+    Description: 'Name of the VPC stack'  
       
 
 Resources:
@@ -164,7 +223,20 @@ Resources:
         PrivateSubnet3Cidr: !Ref PrivateSubnet3Cidr
         AvailabilityZone1: !Ref AvailabilityZone1
         AvailabilityZone2: !Ref AvailabilityZone2
-        AvailabilityZone3: !Ref AvailabilityZone3      
+        AvailabilityZone3: !Ref AvailabilityZone3  
+
+  RedshiftServerlessStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref RedshiftServerlessStackUrl
+      Parameters:
+        NamespaceName: !Ref NamespaceName
+        WorkgroupName: !Ref WorkgroupName
+        DatabaseName: !Ref DatabaseName
+        AdminUsername: !Ref AdminUsername
+        AdminUserPassword: !Ref AdminUserPassword
+        VPCSecurityGroupIds: !Ref SecurityGroupId
+        SubnetIds: !Join [ ",", [ !Ref PublicSubnet1Id, !Ref PublicSubnet2Id, !Ref PublicSubnet3Id ] ]        
 
 Outputs:
   LandingBucketName:
@@ -211,6 +283,9 @@ Outputs:
     Value: !GetAtt RedshiftVPCStack.Outputs.PrivateSubnet3Id
   SecurityGroupId:
     Description: 'The ID of the Redshift Security Group'
-    Value: !GetAtt RedshiftVPCStack.Outputs.SecurityGroupId                 
+    Value: !GetAtt RedshiftVPCStack.Outputs.SecurityGroupId
+  WorkgroupEndpoint:
+    Description: 'The endpoint of the Redshift Serverless workgroup'
+    Value: !GetAtt RedshiftServerlessStack.Outputs.WorkgroupEndpoint                    
 
 
