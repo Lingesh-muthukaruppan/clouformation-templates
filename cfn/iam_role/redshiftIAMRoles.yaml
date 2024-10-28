@@ -41,5 +41,7 @@ Resources:
 
 Outputs:
   RedshiftIamRoleName:
-    Description: 'Name of the created DynamoDB table'
+    Description: 'Name of the created Redshift role'
     Value: !Ref RedshiftServerlessReadOnlyRole
+    Export:
+      Name: RedshiftIamRoleName
