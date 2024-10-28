@@ -38,16 +38,16 @@ phases:
         redshiftvpcfilename="redshiftVPCSubnet.yaml"
         redshiftvpcfile=$CODEBUILD_SRC_DIR/cfn/"${redshiftvpcfilename}"
         echo $redshiftvpcfile
-        reshiftServerlessfilename="reshiftServerless.yaml"
-        reshiftServerlessfile=$CODEBUILD_SRC_DIR/cfn/"${reshiftServerlessfilename}"
-        echo $reshiftServerlessfilename
+        redshiftServerlessfilename="redshiftServerless.yaml"
+        redshiftServerlessfile=$CODEBUILD_SRC_DIR/cfn/"${redshiftServerlessfilename}"
+        echo $redshiftServerlessfile
         aws s3 cp $bucketfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $gluedbfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $gluecrawlerfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $dynamodbfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $redshiftiamrolefile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $redshiftvpcfile s3://tpg-my-bucket/cicd-files/
-        aws s3 cp $reshiftServerlessfilename s3://tpg-my-bucket/cicd-files/
+        aws s3 cp $redshiftServerlessfile s3://tpg-my-bucket/cicd-files/
         bucketurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/bucket.yaml
         GlueDBurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_database.yaml
         GlueCrawlerurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_crawler.yaml
