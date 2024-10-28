@@ -112,18 +112,18 @@ Parameters:
 
   #Redshift Serverless Parameters
   NamespaceName:
-    Description: Name for the Redshift Serverless namespace
+    Description: Name of the Redshift Serverless namespace
     Type: String
-    Default: my-serverless-namespace
+    Default: tpg-redshift-namespace1
     AllowedPattern: '^[a-zA-Z0-9-]+$'
     MinLength: 3
     MaxLength: 64
     ConstraintDescription: Must be a valid namespace name.
 
   WorkgroupName:
-    Description: Name for the Redshift Serverless workgroup
+    Description: Name of the Redshift Serverless workgroup
     Type: String
-    Default: my-serverless-workgroup
+    Default: tpg-redshift-workgroup
     AllowedPattern: '^[a-zA-Z0-9-]+$'
     MinLength: 3
     MaxLength: 64
