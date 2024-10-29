@@ -11,14 +11,6 @@ Parameters:
     Type: String
     Description: The name of the domain  
 
-  WorkgroupName:
-    Description: Name for the Redshift Serverless workgroup
-    Type: String
-
-  DatabaseName:
-    Description: Name of the database in the Redshift Serverless namespace
-    Type: String
-
   AdminUsername:
     Description: Master username for the Redshift Serverless database
     Type: String
