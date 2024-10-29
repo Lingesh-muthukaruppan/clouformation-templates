@@ -2,9 +2,14 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create Amazon Redshift Serverless resources.
 
 Parameters:
-  NamespaceName:
-    Description: Name for the Redshift Serverless namespace
+   EnvType:
     Type: String
+    Default: "dev"
+    Description: The environment type (e.g., prod, dev)
+
+  DomainName:
+    Type: String
+    Description: The name of the domain  
 
   WorkgroupName:
     Description: Name for the Redshift Serverless workgroup
@@ -34,8 +39,14 @@ Resources:
   RedshiftNamespace:
     Type: AWS::RedshiftServerless::Namespace
     Properties:
-      NamespaceName: !Ref NamespaceName
-      DbName: !Ref DatabaseName
+      NamespaceName:
+         Fn::Join:
+          - "-"
+          - [!Ref DomainName, !Ref EnvType, "ns"]
+      DbName:
+         Fn::Join:
+          - "-"
+          - [!Ref DomainName, !Ref EnvType, "db"]
       AdminUsername: !Ref AdminUsername
       AdminUserPassword: !Ref AdminUserPassword
       IamRoles: []  # Add IAM Role ARNs if needed
@@ -47,7 +58,10 @@ Resources:
   RedshiftWorkgroup:
     Type: AWS::RedshiftServerless::Workgroup
     Properties:
-      WorkgroupName: !Ref WorkgroupName
+      WorkgroupName:
+         Fn::Join:
+          - "-"
+          - [!Ref DomainName, !Ref EnvType, "workgroup"]
       NamespaceName: !Ref RedshiftNamespace
       PubliclyAccessible: true
       SecurityGroupIds: !Ref VPCSecurityGroupIds

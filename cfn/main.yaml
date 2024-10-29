@@ -25,10 +25,6 @@ Parameters:
     Description: Crawler yaml path    
 
 #Dynamo DB Parameters
-  TableName:
-    Type: String
-    Description: 'Name of the DynamoDB table'
-    Default: 'tpg-dynamodb-table'
   ReadCapacityUnits:
     Type: Number
     Description: 'Read capacity units for the table'
@@ -104,33 +100,6 @@ Parameters:
     Description: 'Name of the VPC stack'
 
   #Redshift Serverless Parameters
-  NamespaceName:
-    Description: Name of the Redshift Serverless namespace
-    Type: String
-    Default: tpg-redshift-namespace1
-    AllowedPattern: '^[a-zA-Z0-9-]+$'
-    MinLength: 3
-    MaxLength: 64
-    ConstraintDescription: Must be a valid namespace name.
-
-  WorkgroupName:
-    Description: Name of the Redshift Serverless workgroup
-    Type: String
-    Default: tpg-redshift-workgroup
-    AllowedPattern: '^[a-zA-Z0-9-]+$'
-    MinLength: 3
-    MaxLength: 64
-    ConstraintDescription: Must be a valid workgroup name.
-
-  DatabaseName:
-    Description: Name of the database in the Redshift Serverless namespace
-    Type: String
-    Default: mydatabase
-    AllowedPattern: '^[a-zA-Z][a-zA-Z0-9]*$'
-    MinLength: 1
-    MaxLength: 127
-    ConstraintDescription: Must be alphanumeric and start with a letter.
-
   AdminUsername:
     Description: Master username for the Redshift Serverless database
     Type: String
@@ -187,7 +156,8 @@ Resources:
     Properties:
       TemplateURL: !Ref DynamoDBStackUrl
       Parameters:
-        TableName: !Ref TableName
+        EnvType: !Ref EnvType
+        DomainName: !Ref DomainName
         ReadCapacityUnits: !Ref ReadCapacityUnits
         WriteCapacityUnits: !Ref WriteCapacityUnits
 
@@ -217,9 +187,11 @@ Resources:
     Properties:
       TemplateURL: !Ref RedshiftServerlessStackUrl
       Parameters:
-        NamespaceName: !Ref NamespaceName
-        WorkgroupName: !Ref WorkgroupName
-        DatabaseName: !Ref DatabaseName
+        EnvType: !Ref EnvType
+        DomainName: !Ref DomainName
+        # NamespaceName: !Ref NamespaceName
+        # WorkgroupName: !Ref WorkgroupName
+        # DatabaseName: !Ref DatabaseName
         AdminUsername: !Ref AdminUsername
         AdminUserPassword: !Ref AdminUserPassword
         VPCSecurityGroupIds: !Join [ ",", [!GetAtt RedshiftVPCStack.Outputs.SecurityGroupId]]

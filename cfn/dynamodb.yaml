@@ -2,9 +2,13 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Nested stack for creating a DynamoDB table'
 
 Parameters:
-  TableName:
+  EnvType:
     Type: String
-    Description: 'Name of the DynamoDB table'
+    Default: "dev"
+    Description: The environment type (e.g., prod, dev)
+  DomainName:
+    Type: String
+    Description: The name of the domain
   ReadCapacityUnits:
     Type: Number
     Description: 'Read capacity units for the table'
@@ -16,7 +20,10 @@ Resources:
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Ref TableName
+      TableName:
+            Fn::Join:
+            - "-"
+            - [ "tpgt", !Ref DomainName, !Ref EnvType, "landing", "table"]
       AttributeDefinitions:
         - AttributeName: 'id'
           AttributeType: 'S'
