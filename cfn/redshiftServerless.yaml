@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create Amazon Redshift Serverless resources.
 
 Parameters:
-   EnvType:
+  EnvType:
     Type: String
     Default: "dev"
     Description: The environment type (e.g., prod, dev)
