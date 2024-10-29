@@ -34,11 +34,11 @@ Resources:
       NamespaceName:
          Fn::Join:
           - "-"
-          - [!Ref DomainName, !Ref EnvType, "ns"]
+          - [!Ref EnvType, !Ref DomainName, "ns"]
       DbName:
          Fn::Join:
           - "-"
-          - [!Ref DomainName, !Ref EnvType, "db"]
+          - [!Ref EnvType, !Ref DomainName, "db"]
       AdminUsername: !Ref AdminUsername
       AdminUserPassword: !Ref AdminUserPassword
       IamRoles: []  # Add IAM Role ARNs if needed
@@ -53,7 +53,7 @@ Resources:
       WorkgroupName:
          Fn::Join:
           - "-"
-          - [!Ref DomainName, !Ref EnvType, "workgroup"]
+          - [!Ref EnvType, !Ref DomainName, "workgroup"]
       NamespaceName: !Ref RedshiftNamespace
       PubliclyAccessible: true
       SecurityGroupIds: !Ref VPCSecurityGroupIds
