@@ -144,7 +144,11 @@ Parameters:
   PostgreSQLPassword:
     Type: String
     Default: Admin12345679
-    NoEcho: true    
+    NoEcho: true 
+
+  DMSStackUrl:
+    Type: String
+    Description: 'Name of the DMS Stack Url'     
 
 Resources:
   s3buckets:
