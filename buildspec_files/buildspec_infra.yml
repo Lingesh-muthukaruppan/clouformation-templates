@@ -73,6 +73,12 @@ phases:
        
         aws cloudformation deploy \
           --template-file $cfnfile \
+          --stack-name tpg-stack-role \
+          --parameter-overrides DmsvpcRoleUrl="${dmsvpcroleurl}" \
+          --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
+
+        aws cloudformation deploy \
+          --template-file $cfnfile \
           --stack-name tpg-stack \
           --parameter-overrides EnvType="${env}" DomainName="${domain}" DmsvpcRoleUrl="${dmsvpcroleurl}"  DmsiamRoleUrl="${dmsiamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftiamRoleUrl="${redshiftiamroleurl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}"\
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
