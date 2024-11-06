@@ -72,8 +72,16 @@ phases:
         dmsurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dms.yaml
         aws cloudformation deploy \
           --template-file $cfnfile \
+          --stack-name tpg-stack-roles \
+          --parameter-overrides EnvType="${env}" DomainName="${domain}" DmsvpcRoleUrl="${dmsvpcroleurl}"  DmsiamRoleUrl="${dmsiamroleurl}" \
+          --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
+        
+        aws cloudformation wait stack-create-complete --stack-name tpg-stack-roles
+
+        aws cloudformation deploy \
+          --template-file $cfnfile \
           --stack-name tpg-stack \
-          --parameter-overrides EnvType="${env}" DomainName="${domain}" DmsvpcRoleUrl="${dmsvpcroleurl}"  DmsiamRoleUrl="${dmsiamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftiamRoleUrl="${redshiftiamroleurl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}"\
+          --parameter-overrides EnvType="${env}" DomainName="${domain}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftiamRoleUrl="${redshiftiamroleurl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}"\
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
   post_build:
     commands:
