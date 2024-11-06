@@ -45,7 +45,7 @@ phases:
         dmsiamrolefile=$CODEBUILD_SRC_DIR/cfn/iam_role/"${dmsiamrolefilename}"
         echo $dmsiamrolefile
         dmsfilename="dms.yaml"
-        dmsfile=$CODEBUILD_SRC_DIR/cfn/iam_role/"${dmsfilename}"
+        dmsfile=$CODEBUILD_SRC_DIR/cfn/"${dmsfilename}"
         echo $dmsfile
         aws s3 cp $bucketfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $gluedbfile s3://tpg-my-bucket/cicd-files/
