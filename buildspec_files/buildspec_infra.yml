@@ -41,9 +41,6 @@ phases:
         redshiftServerlessfilename="redshiftServerless.yaml"
         redshiftServerlessfile=$CODEBUILD_SRC_DIR/cfn/"${redshiftServerlessfilename}"
         echo $redshiftServerlessfile
-        dmsvpcrolefilename="dmsVpcRoles.yaml"
-        dmsvpcrolefile=$CODEBUILD_SRC_DIR/cfn/iam_role/"${dmsvpcrolefilename}"
-        echo $dmsvpcrolefile
         dmsiamrolefilename="dmsIamRoles.yaml"
         dmsiamrolefile=$CODEBUILD_SRC_DIR/cfn/iam_role/"${dmsiamrolefilename}"
         echo $dmsiamrolefile
@@ -57,7 +54,6 @@ phases:
         aws s3 cp $redshiftiamrolefile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $redshiftvpcfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $redshiftServerlessfile s3://tpg-my-bucket/cicd-files/
-        aws s3 cp $dmsvpcrolefile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $dmsiamrolefile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $dmsfile s3://tpg-my-bucket/cicd-files/
         bucketurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/bucket.yaml
@@ -70,17 +66,11 @@ phases:
         dmsvpcroleurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dmsVpcRoles.yaml
         dmsiamroleurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dmsIamRoles.yaml
         dmsurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dms.yaml
-       
-        aws cloudformation deploy \
-          --template-file $cfnfile \
-          --stack-name tpg-stack-role \
-          --parameter-overrides DmsvpcRoleUrl="${dmsvpcroleurl}" \
-          --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
 
         aws cloudformation deploy \
           --template-file $cfnfile \
           --stack-name tpg-stack \
-          --parameter-overrides EnvType="${env}" DomainName="${domain}" DmsiamRoleUrl="${dmsiamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftiamRoleUrl="${redshiftiamroleurl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}"\
+          --parameter-overrides EnvType="${env}" DomainName="${domain}" DmsvpcRoleUrl="${dmsvpcroleurl}" DmsiamRoleUrl="${dmsiamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftiamRoleUrl="${redshiftiamroleurl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}"\
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
   post_build:
     commands:

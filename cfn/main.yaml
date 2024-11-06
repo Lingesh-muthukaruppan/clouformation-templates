@@ -123,11 +123,6 @@ Parameters:
     Type: String
     Description: 'Name of the Redshift Serverless stack'  
 
-  #DMSVPCRole Parameters
-  DmsvpcRoleUrl:
-    Type: String
-    Description: 'Name of the DMS VPC Role'
-
   #DMSIAMRole Parameters
   DmsiamRoleUrl:
     Type: String
@@ -228,11 +223,6 @@ Resources:
         VPCSecurityGroupIds: !Join [ ",", [!GetAtt RedshiftVPCStack.Outputs.SecurityGroupId]]
         SubnetIds: !Join [ ",", [ !GetAtt RedshiftVPCStack.Outputs.PublicSubnet1Id, !GetAtt RedshiftVPCStack.Outputs.PublicSubnet2Id, !GetAtt RedshiftVPCStack.Outputs.PublicSubnet3Id ]]        
   
-  DMSvpcRoleStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Ref DmsvpcRoleUrl
-
   DMSiamRoleStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -248,7 +238,8 @@ Resources:
         MySQLUsername: !Ref MySQLUsername
         MySQLPassword: !Ref MySQLPassword
         PostgreSQLUsername: !Ref PostgreSQLUsername
-        PostgreSQLPassword: !Ref PostgreSQLPassword  
+        PostgreSQLPassword: !Ref PostgreSQLPassword 
+        DMSVPCRole: !GetAtt DMSVPCRole.Outputs.DMSVPCRole 
 
 
 Outputs:
