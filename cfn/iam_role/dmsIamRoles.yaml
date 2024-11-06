@@ -6,7 +6,7 @@ Resources:
   DMSVPCRole:
     Type: AWS::IAM::Role
     Properties:
-    RoleName: DMSVPCRole
+      RoleName: DMSVPCRole
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
