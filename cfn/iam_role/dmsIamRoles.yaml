@@ -6,6 +6,7 @@ Resources:
   DMSVPCRole:
     Type: AWS::IAM::Role
     Properties:
+    RoleName: DMSVPCRole
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -57,7 +58,7 @@ Outputs:
     Description: 'Name of the created DMS VPC role'
     Value: !Ref DMSVPCRole
     Export:
-      Name: !Sub "${AWS::StackName}" 
+      Name: DMSVPCRole 
   DMSIAMRole:
     Description: 'Name of the created DMS IAM role'
     Value: !Ref DMSIAMRole

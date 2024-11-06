@@ -36,7 +36,7 @@ Resources:
   ### DMS Replication Instance ###
   DMSReplicationInstance:
     Type: AWS::DMS::ReplicationInstance
-    DependsOn: !Ref DMSVPCRole
+    DependsOn: DMSVPCRole
     Properties: 
       ReplicationInstanceClass: dms.r5.large
       AllocatedStorage: 100
@@ -53,7 +53,7 @@ Resources:
   ### DMS Replication Subnet Group ###
   DMSReplicationSubnetGroup:
     Type: AWS::DMS::ReplicationSubnetGroup
-    DependsOn: !Ref DMSVPCRole
+    DependsOn: DMSVPCRole
     Properties:
       ReplicationSubnetGroupIdentifier: MyDMSSubnetGroup
       ReplicationSubnetGroupDescription: "Subnet group for DMS replication"
