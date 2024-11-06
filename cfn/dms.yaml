@@ -17,6 +17,7 @@ Parameters:
 
   MySQLPassword:
     Type: String
+    NoEcho: true
     Description: MySQLPassword
 
   PostgreSQLUsername:
@@ -25,19 +26,14 @@ Parameters:
 
   PostgreSQLPassword:
     Type: String
+    NoEcho: true
     Description: PostgreSQLPassword
 
-  # DMSVPCRole:
-  #   Type: String 
-  #   Description: DMS vpc role
-     
-
 Resources:
-    ### IAM Role for DMS VPC Role ###
   DMSVPCRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: dms-vpc-role
+      RoleName: !Sub "${AWS::StackName}-dms-vpc-role"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -48,42 +44,32 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonDMSVPCManagementRole
 
-  ### DMS Replication Instance ###
   DMSReplicationInstance:
     Type: AWS::DMS::ReplicationInstance
     Properties: 
       ReplicationInstanceClass: dms.r5.large
       AllocatedStorage: 100
-      ReplicationInstanceIdentifier: 
-          Fn::Join:
-            - "-"
-            - [!Ref EnvType, !Ref DomainName, "instance"]
+      ReplicationInstanceIdentifier: !Sub "${EnvType}-${DomainName}-instance"
       PubliclyAccessible: false
       VpcSecurityGroupIds: 
         - sg-0e9f469431b6b03bf  # Replace with your security group ID
       AvailabilityZone: us-east-1a
-      ReplicationSubnetGroupIdentifier: !Ref DMSReplicationSubnetGroup  # Specify the subnet group
+      ReplicationSubnetGroupIdentifier: !Ref DMSReplicationSubnetGroup
 
-  ### DMS Replication Subnet Group ###
   DMSReplicationSubnetGroup:
     Type: AWS::DMS::ReplicationSubnetGroup
-    DependsOn: DMSVPCRole
     Properties:
-      ReplicationSubnetGroupIdentifier: MyDMSSubnetGroup
+      ReplicationSubnetGroupIdentifier: !Sub "${AWS::StackName}-subnet-group"
       ReplicationSubnetGroupDescription: "Subnet group for DMS replication"
       SubnetIds:
         - subnet-0ded02dc4c9cf6fca  # Replace with your subnet IDs
         - subnet-072b15917378e74df
         - subnet-03d30d1b1121cdb69
-      Tags:
-        - Key: Name
-          Value: MyDMSSubnetGroup
 
-  ### DMS Source Endpoint for MySQL ###
   DMSSourceEndpoint:
     Type: AWS::DMS::Endpoint
     Properties: 
-      EndpointIdentifier: MySourceEndpoint
+      EndpointIdentifier: !Sub "${AWS::StackName}-source-endpoint"
       EndpointType: source
       EngineName: mysql
       Username: !Ref MySQLUsername
@@ -92,11 +78,10 @@ Resources:
       Port: 3306
       DatabaseName: my-source-database  # Replace with actual MySQL DB name
 
-  ### DMS Target Endpoint for PostgreSQL ###
   DMSTargetEndpoint:
     Type: AWS::DMS::Endpoint
     Properties: 
-      EndpointIdentifier: MyTargetEndpoint
+      EndpointIdentifier: !Sub "${AWS::StackName}-target-endpoint"
       EndpointType: target
       EngineName: postgres
       Username: !Ref PostgreSQLUsername
@@ -105,31 +90,29 @@ Resources:
       Port: 5432
       DatabaseName: my-target-database  # Replace with actual PostgreSQL DB name
 
-  ### DMS Migration Task ###
   DMSMigrationTask:
     Type: AWS::DMS::ReplicationTask
     Properties: 
-      ReplicationTaskIdentifier: MyMigrationTask
+      ReplicationTaskIdentifier: !Sub "${AWS::StackName}-migration-task"
       SourceEndpointArn: !Ref DMSSourceEndpoint
       TargetEndpointArn: !Ref DMSTargetEndpoint
+      ReplicationInstanceArn: !Ref DMSReplicationInstance
       MigrationType: full-load
       TableMappings: 
-        Fn::Sub: |
-          {
-            "rules": [
-              {
-                "rule-type": "selection",
-                "rule-id": "1",
-                "rule-name": "1",
-                "object-locator": {
-                  "schema-name": "%", 
-                  "table-name": "%"
-                },
-                "rule-action": "include"
-              }
-            ]
-          }
-      ReplicationInstanceArn: !Ref DMSReplicationInstance
+        {
+          "rules": [
+            {
+              "rule-type": "selection",
+              "rule-id": "1",
+              "rule-name": "1",
+              "object-locator": {
+                "schema-name": "%", 
+                "table-name": "%"
+              },
+              "rule-action": "include"
+            }
+          ]
+        }
 
 Outputs:
   ReplicationInstanceArn:
@@ -144,6 +127,6 @@ Outputs:
     Description: "The ARN of the target endpoint"
     Value: !Ref DMSTargetEndpoint
 
-  ReplicationTaskArn:
-    Description: "The ARN of the DMS replication task"
+  MigrationTaskArn:
+    Description: "The ARN of the DMS migration task"
     Value: !Ref DMSMigrationTask
