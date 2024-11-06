@@ -27,12 +27,27 @@ Parameters:
     Type: String
     Description: PostgreSQLPassword
 
-  DMSVPCRole:
-    Type: String 
-    Description: DMS vpc role
+  # DMSVPCRole:
+  #   Type: String 
+  #   Description: DMS vpc role
      
 
 Resources:
+    ### IAM Role for DMS VPC Role ###
+  DMSVPCRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: dms-vpc-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: dms.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonDMSVPCManagementRole
+
   ### DMS Replication Instance ###
   DMSReplicationInstance:
     Type: AWS::DMS::ReplicationInstance
@@ -52,6 +67,7 @@ Resources:
   ### DMS Replication Subnet Group ###
   DMSReplicationSubnetGroup:
     Type: AWS::DMS::ReplicationSubnetGroup
+    DependsOn: DMSVPCRole
     Properties:
       ReplicationSubnetGroupIdentifier: MyDMSSubnetGroup
       ReplicationSubnetGroupDescription: "Subnet group for DMS replication"
