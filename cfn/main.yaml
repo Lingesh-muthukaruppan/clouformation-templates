@@ -239,7 +239,7 @@ Resources:
         MySQLPassword: !Ref MySQLPassword
         PostgreSQLUsername: !Ref PostgreSQLUsername
         PostgreSQLPassword: !Ref PostgreSQLPassword 
-        # DMSVPCRole: !GetAtt DMSiamRoleStack.Outputs.DMSVPCRole
+        DMSVPCRole: !GetAtt DMSiamRoleStack.Outputs.DMSVPCRole
 
 
 Outputs:
