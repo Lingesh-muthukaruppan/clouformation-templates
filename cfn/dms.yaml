@@ -58,6 +58,7 @@ Resources:
 
   DMSReplicationSubnetGroup:
     Type: AWS::DMS::ReplicationSubnetGroup
+    DependsOn: DMSVPCRole
     Properties:
       ReplicationSubnetGroupIdentifier: !Sub "${AWS::StackName}-subnet-group"
       ReplicationSubnetGroupDescription: "Subnet group for DMS replication"
