@@ -1,0 +1,128 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create AWS DMS resources for migrating data between databases
+
+Parameters:
+  EnvType:
+    Type: String
+    Default: "dev"
+    Description: The environment type (e.g., prod, dev)
+
+  DomainName:
+    Type: String
+    Description: The name of the domain
+
+  MySQLUsername:
+    Type: String
+    Description: MySQLUsername
+
+  MySQLPassword:
+    Type: String
+    Description: MySQLPassword
+
+  PostgreSQLUsername:
+    Type: String
+    Description: PostgreSQLUsername
+
+  PostgreSQLPassword:
+    Type: String
+    Description: PostgreSQLPassword
+
+Resources:
+  ### DMS Replication Instance ###
+  DMSReplicationInstance:
+    Type: AWS::DMS::ReplicationInstance
+    Properties: 
+      ReplicationInstanceClass: dms.r5.large
+      AllocatedStorage: 100
+      ReplicationInstanceIdentifier: 
+          Fn::Join:
+            - "-"
+            - [!Ref EnvType, !Ref DomainName, "instance"]
+      PubliclyAccessible: false
+      VpcSecurityGroupIds: 
+        - sg-0e9f469431b6b03bf  # Replace with your security group ID
+      AvailabilityZone: us-east-1a
+      ReplicationSubnetGroupIdentifier: !Ref DMSReplicationSubnetGroup  # Specify the subnet group
+
+  ### DMS Replication Subnet Group ###
+  DMSReplicationSubnetGroup:
+    Type: AWS::DMS::ReplicationSubnetGroup
+    Properties:
+      ReplicationSubnetGroupIdentifier: MyDMSSubnetGroup
+      ReplicationSubnetGroupDescription: "Subnet group for DMS replication"
+      SubnetIds:
+        - subnet-0ded02dc4c9cf6fca  # Replace with your subnet IDs
+        - subnet-072b15917378e74df
+        - subnet-03d30d1b1121cdb69
+      Tags:
+        - Key: Name
+          Value: MyDMSSubnetGroup
+
+  ### DMS Source Endpoint for MySQL ###
+  DMSSourceEndpoint:
+    Type: AWS::DMS::Endpoint
+    Properties: 
+      EndpointIdentifier: MySourceEndpoint
+      EndpointType: source
+      EngineName: mysql
+      Username: !Ref MySQLUsername
+      Password: !Ref MySQLPassword
+      ServerName: my-source-db.example.com  # Replace with actual MySQL host
+      Port: 3306
+      DatabaseName: my-source-database  # Replace with actual MySQL DB name
+
+  ### DMS Target Endpoint for PostgreSQL ###
+  DMSTargetEndpoint:
+    Type: AWS::DMS::Endpoint
+    Properties: 
+      EndpointIdentifier: MyTargetEndpoint
+      EndpointType: target
+      EngineName: postgres
+      Username: !Ref PostgreSQLUsername
+      Password: !Ref PostgreSQLPassword
+      ServerName: my-target-db.example.com  # Replace with actual PostgreSQL host
+      Port: 5432
+      DatabaseName: my-target-database  # Replace with actual PostgreSQL DB name
+
+  ### DMS Migration Task ###
+  DMSMigrationTask:
+    Type: AWS::DMS::ReplicationTask
+    Properties: 
+      ReplicationTaskIdentifier: MyMigrationTask
+      SourceEndpointArn: !Ref DMSSourceEndpoint
+      TargetEndpointArn: !Ref DMSTargetEndpoint
+      MigrationType: full-load
+      TableMappings: 
+        Fn::Sub: |
+          {
+            "rules": [
+              {
+                "rule-type": "selection",
+                "rule-id": "1",
+                "rule-name": "1",
+                "object-locator": {
+                  "schema-name": "%", 
+                  "table-name": "%"
+                },
+                "rule-action": "include"
+              }
+            ]
+          }
+      ReplicationInstanceArn: !Ref DMSReplicationInstance
+
+Outputs:
+  ReplicationInstanceArn:
+    Description: "The ARN of the DMS replication instance"
+    Value: !Ref DMSReplicationInstance
+
+  SourceEndpointArn:
+    Description: "The ARN of the source endpoint"
+    Value: !Ref DMSSourceEndpoint
+
+  TargetEndpointArn:
+    Description: "The ARN of the target endpoint"
+    Value: !Ref DMSTargetEndpoint
+
+  ReplicationTaskArn:
+    Description: "The ARN of the DMS replication task"
+    Value: !Ref DMSMigrationTask

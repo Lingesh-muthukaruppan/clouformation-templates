@@ -121,8 +121,30 @@ Parameters:
     
   RedshiftServerlessStackUrl:
     Type: String
-    Description: 'Name of the VPC stack'  
-      
+    Description: 'Name of the Redshift Serverless stack'  
+
+  #DMSIAMRole Parameters
+  DmsiamRoleUrl:
+    Type: String
+    Description: 'Name of the DMS Iam Role'  
+
+  #DMS Parameters
+  MySQLUsername:
+    Type: String
+    Default: admin
+    NoEcho: true
+  MySQLPassword:
+    Type: String
+    Default: Admin12345678
+    NoEcho: true
+  PostgreSQLUsername:
+    Type: String
+    Default: admins
+    NoEcho: true
+  PostgreSQLPassword:
+    Type: String
+     Default: Admin12345679
+    NoEcho: true    
 
 Resources:
   s3buckets:
@@ -196,6 +218,24 @@ Resources:
         AdminUserPassword: !Ref AdminUserPassword
         VPCSecurityGroupIds: !Join [ ",", [!GetAtt RedshiftVPCStack.Outputs.SecurityGroupId]]
         SubnetIds: !Join [ ",", [ !GetAtt RedshiftVPCStack.Outputs.PublicSubnet1Id, !GetAtt RedshiftVPCStack.Outputs.PublicSubnet2Id, !GetAtt RedshiftVPCStack.Outputs.PublicSubnet3Id ]]        
+  
+  DMSiamRoleStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref DmsiamRoleUrl
+
+  DMSStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref DMSStackUrl
+      Parameters:
+        EnvType: !Ref EnvType
+        DomainName: !Ref DomainName
+        MySQLUsername: !Ref MySQLUsername
+        MySQLPassword: !Ref MySQLPassword
+        PostgreSQLUsername: !Ref PostgreSQLUsername
+        PostgreSQLPassword: !Ref PostgreSQLPassword  
+
 
 Outputs:
   LandingBucketName:
