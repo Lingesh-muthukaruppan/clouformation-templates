@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "CloudFormation template to enable Amazon Macie"
+
+Resources:
+  MacieServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MacieServiceRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "macie.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: MacieAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "s3:GetObject"
+                  - "s3:ListBucket"
+                  - "s3:GetBucketLocation"
+                  - "s3:PutObject"
+                  - "macie2:ListFindings"
+                  - "macie2:CreateSampleFindings"
+                Resource: "*"
+
+  MacieConfiguration:
+    Type: AWS::Macie::Session
+    Properties:
+      FindingPublishingFrequency: FIFTEEN_MINUTES
+      Status: "ENABLED"
+
+Outputs:
+  MacieServiceRoleArn:
+    Description: "The Amazon Resource Name (ARN) of the Macie Service Role"
+    Value: !GetAtt MacieServiceRole.Arn
+  MacieStatus:
+    Description: "The current status of Amazon Macie in this AWS account"
+    Value: !Ref MacieConfiguration

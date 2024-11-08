@@ -239,7 +239,11 @@ Resources:
         MySQLPassword: !Ref MySQLPassword
         PostgreSQLUsername: !Ref PostgreSQLUsername
         PostgreSQLPassword: !Ref PostgreSQLPassword 
-
+  
+  MacieStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref MacieStackUrl 
 
 Outputs:
   LandingBucketName:

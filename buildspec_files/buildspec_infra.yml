@@ -47,6 +47,9 @@ phases:
         dmsfilename="dms.yaml"
         dmsfile=$CODEBUILD_SRC_DIR/cfn/"${dmsfilename}"
         echo $dmsfile
+        maciefilename="macie.yaml"
+        maciefile=$CODEBUILD_SRC_DIR/cfn/"${maciefilename}"
+        echo $maciefile
         aws s3 cp $bucketfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $gluedbfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $gluecrawlerfile s3://tpg-my-bucket/cicd-files/
@@ -56,6 +59,7 @@ phases:
         aws s3 cp $redshiftServerlessfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $dmsiamrolefile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $dmsfile s3://tpg-my-bucket/cicd-files/
+        aws s3 cp $maciefile s3://tpg-my-bucket/cicd-files/
         bucketurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/bucket.yaml
         GlueDBurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_database.yaml
         GlueCrawlerurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_crawler.yaml
@@ -65,11 +69,12 @@ phases:
         redshiftserverlessurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/redshiftServerless.yaml
         dmsiamroleurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dmsIamRoles.yaml
         dmsurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dms.yaml
+        macieurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/macie.yaml
 
         aws cloudformation deploy \
           --template-file $cfnfile \
           --stack-name tpg-stack \
-          --parameter-overrides EnvType="${env}" DomainName="${domain}" DmsiamRoleUrl="${dmsiamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftiamRoleUrl="${redshiftiamroleurl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}"\
+          --parameter-overrides EnvType="${env}" DomainName="${domain}" DmsiamRoleUrl="${dmsiamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftiamRoleUrl="${redshiftiamroleurl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}" MacieStackUrl="${macieurl}"\
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
   post_build:
     commands:
