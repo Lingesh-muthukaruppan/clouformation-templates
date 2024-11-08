@@ -2,6 +2,10 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create an S3 bucket
 
 Parameters:
+#IAMRole Parameters
+  IamRoleUrl:
+    Type: String
+    Description: 'Name of the IAM Role Url' 
 #S3 Parameters  
   EnvType:
     Type: String
@@ -38,11 +42,6 @@ Parameters:
   DynamoDBStackUrl:
     Type: String
     Description: 'Dynamo DB S3 URL of the nested stack template'
-
-  #Redshift Parameters
-  RedshiftiamRoleUrl:
-    Type: String
-    Description: 'Name of the Redshift Iam Role'
 
   #Redshift Subnet Parameters
   VpcCidr:
@@ -122,12 +121,7 @@ Parameters:
   RedshiftServerlessStackUrl:
     Type: String
     Description: 'Name of the Redshift Serverless stack'  
-
-  #DMSIAMRole Parameters
-  DmsiamRoleUrl:
-    Type: String
-    Description: 'Name of the DMS Iam Role'  
-
+ 
   #DMS Parameters
   MySQLUsername:
     Type: String
@@ -156,6 +150,11 @@ Parameters:
     Description: 'Name of the Macie Stack Url'      
 
 Resources:
+  IAMRoleStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref IamRoleUrl
+
   s3buckets:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -192,11 +191,6 @@ Resources:
         ReadCapacityUnits: !Ref ReadCapacityUnits
         WriteCapacityUnits: !Ref WriteCapacityUnits
 
-  RedshiftiamRoleStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Ref RedshiftiamRoleUrl  
-
   RedshiftVPCStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -220,18 +214,10 @@ Resources:
       Parameters:
         EnvType: !Ref EnvType
         DomainName: !Ref DomainName
-        # NamespaceName: !Ref NamespaceName
-        # WorkgroupName: !Ref WorkgroupName
-        # DatabaseName: !Ref DatabaseName
         AdminUsername: !Ref AdminUsername
         AdminUserPassword: !Ref AdminUserPassword
         VPCSecurityGroupIds: !Join [ ",", [!GetAtt RedshiftVPCStack.Outputs.SecurityGroupId]]
         SubnetIds: !Join [ ",", [ !GetAtt RedshiftVPCStack.Outputs.PublicSubnet1Id, !GetAtt RedshiftVPCStack.Outputs.PublicSubnet2Id, !GetAtt RedshiftVPCStack.Outputs.PublicSubnet3Id ]]        
-  
-  DMSiamRoleStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Ref DmsiamRoleUrl
 
   DMSStack:
     Type: AWS::CloudFormation::Stack
@@ -271,7 +257,7 @@ Outputs:
     Value: !GetAtt DynamoDBStack.Outputs.TableName
   RedshiftIamRoleName:
     Description: 'Name of the created Redshift IAM role'
-    Value: !GetAtt RedshiftiamRoleStack.Outputs.RedshiftIamRoleName
+    Value: !GetAtt IAMRoleStack.Outputs.RedshiftIamRoleName
   VpcId:
     Description: 'The VPC ID'
     Value: !GetAtt RedshiftVPCStack.Outputs.VpcId

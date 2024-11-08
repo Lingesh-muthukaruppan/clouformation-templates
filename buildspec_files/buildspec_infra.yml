@@ -20,6 +20,9 @@ phases:
         cfnfilename="main.yaml"
         cfnfile=$CODEBUILD_SRC_DIR/cfn/"${cfnfilename}"
         echo $cfnfile
+        iamrolefilename="iamRoles.yaml"
+        iamrolefile=$CODEBUILD_SRC_DIR/cfn/iam_role/"${iamrolefilename}"
+        echo $iamrolefile
         bucketfilename="bucket.yaml"
         bucketfile=$CODEBUILD_SRC_DIR/cfn/"${bucketfilename}"
         echo $bucketfile
@@ -32,49 +35,41 @@ phases:
         dynamodbfilename="dynamodb.yaml"
         dynamodbfile=$CODEBUILD_SRC_DIR/cfn/"${dynamodbfilename}"
         echo $dynamodbfile
-        redshiftiamrolefilename="redshiftIAMRoles.yaml"
-        redshiftiamrolefile=$CODEBUILD_SRC_DIR/cfn/iam_role/"${redshiftiamrolefilename}"
-        echo $redshiftiamrolefile
         redshiftvpcfilename="redshiftVPCSubnet.yaml"
         redshiftvpcfile=$CODEBUILD_SRC_DIR/cfn/"${redshiftvpcfilename}"
         echo $redshiftvpcfile
         redshiftServerlessfilename="redshiftServerless.yaml"
         redshiftServerlessfile=$CODEBUILD_SRC_DIR/cfn/"${redshiftServerlessfilename}"
         echo $redshiftServerlessfile
-        dmsiamrolefilename="dmsIamRoles.yaml"
-        dmsiamrolefile=$CODEBUILD_SRC_DIR/cfn/iam_role/"${dmsiamrolefilename}"
-        echo $dmsiamrolefile
         dmsfilename="dms.yaml"
         dmsfile=$CODEBUILD_SRC_DIR/cfn/"${dmsfilename}"
         echo $dmsfile
         maciefilename="macie.yaml"
         maciefile=$CODEBUILD_SRC_DIR/cfn/"${maciefilename}"
         echo $maciefile
+        aws s3 cp $iamrolefile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $bucketfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $gluedbfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $gluecrawlerfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $dynamodbfile s3://tpg-my-bucket/cicd-files/
-        aws s3 cp $redshiftiamrolefile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $redshiftvpcfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $redshiftServerlessfile s3://tpg-my-bucket/cicd-files/
-        aws s3 cp $dmsiamrolefile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $dmsfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $maciefile s3://tpg-my-bucket/cicd-files/
+        iamroleurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/iamRoles.yaml
         bucketurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/bucket.yaml
         GlueDBurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_database.yaml
         GlueCrawlerurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_crawler.yaml
         dynamodburl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dynamodb.yaml
-        redshiftiamroleurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/redshiftIAMRoles.yaml
         redshiftvpcurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/redshiftVPCSubnet.yaml
         redshiftserverlessurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/redshiftServerless.yaml
-        dmsiamroleurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dmsIamRoles.yaml
         dmsurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dms.yaml
         macieurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/macie.yaml
 
         aws cloudformation deploy \
           --template-file $cfnfile \
           --stack-name tpg-stack \
-          --parameter-overrides EnvType="${env}" DomainName="${domain}" DmsiamRoleUrl="${dmsiamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftiamRoleUrl="${redshiftiamroleurl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}" MacieStackUrl="${macieurl}"\
+          --parameter-overrides EnvType="${env}" DomainName="${domain}" IamRoleUrl="${iamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}" MacieStackUrl="${macieurl}"\
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
   post_build:
     commands:
