@@ -148,7 +148,12 @@ Parameters:
 
   DMSStackUrl:
     Type: String
-    Description: 'Name of the DMS Stack Url'     
+    Description: 'Name of the DMS Stack Url'
+
+  #Macie Parameters
+  MacieStackUrl:
+    Type: String
+    Description: 'Name of the Macie Stack Url'      
 
 Resources:
   s3buckets:
