@@ -109,8 +109,7 @@ Resources:
                   - sqs:GetQueueUrl
                   - sqs:ListQueues
                 Resource: 
-                  - !Ref QueueARN
-         
+                 - !Sub "${QueueARN}"
 
 Outputs: 
   DMSIAMRole:
