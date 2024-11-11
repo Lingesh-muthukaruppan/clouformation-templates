@@ -5,7 +5,7 @@ phases:
       - |
         echo "========================================================================================="
         echo "Checking S3 buckets"
-        aws s3 ls | grep -E '.*-landing-bucket$|.*-raw-bucket$|.*-trusted-bucket$'
+        aws s3 ls | grep -E '.*-landing$|.*-raw$|.*-trusted$'
         echo "----------------------------------------------------------------------------------------"
         echo "Test Bucket"
         aws s3api create-bucket --bucket dev-samplebucket --region ap-south-1 --create-bucket-configuration LocationConstraint=ap-south-1
