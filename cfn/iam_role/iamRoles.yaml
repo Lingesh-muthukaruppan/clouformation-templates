@@ -108,7 +108,9 @@ Resources:
                   - sqs:GetQueueAttributes
                   - sqs:GetQueueUrl
                   - sqs:ListQueues
-                Resource: !Ref QueueARN         
+                Resource: 
+                  - !Ref QueueARN
+         
 
 Outputs: 
   DMSIAMRole:
@@ -118,9 +120,7 @@ Outputs:
       Name: DMSIAMRole
   RedshiftIamRoleName:
     Description: 'Name of the created Redshift role'
-    Value: !Ref RedshiftServerlessReadOnlyRole
-    Export:
-      Name: RedshiftIamRoleName 
+    Value: !Ref RedshiftServerlessReadOnlyRole 
   SQSIAMRoleArn:
     Description: "ARN of the IAM role with SQS permissions"
-    Value: !Ref MyQueueIAMRole.Arn      
+    Value: !GetAtt MyQueueIAMRole.Arn      
