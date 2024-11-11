@@ -37,6 +37,34 @@ Resources:
             - [ !Ref DomainName, !Ref EnvType, "DLQueue"]
       MessageRetentionPeriod: 1209600  # Retention period for DLQ in seconds (14 days)
 
+  ### IAM Role for SQS ###     
+  MyQueueIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MyQueueAccessRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"  # Replace this with the service or entity that will assume the role
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: SQSAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                  - sqs:GetQueueUrl
+                  - sqs:ListQueues
+                Resource: 
+                   - !GetAtt MySQSQueue.Arn
+
 Outputs:
   QueueURL:
     Description: "URL of the SQS queue"

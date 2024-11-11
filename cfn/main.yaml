@@ -160,7 +160,6 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Ref IamRoleUrl
-      QueueName: !GetAtt SqsStack.Outputs.QueueName
 
   s3buckets:
     Type: AWS::CloudFormation::Stack
