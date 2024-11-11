@@ -1,0 +1,31 @@
+version: 0.2
+phases:
+  build:
+    commands:
+      - |
+        echo "========================================================================================="
+        echo "Checking S3 buckets"
+        aws s3 ls | grep -E '.*-landing-bucket$|.*-raw-bucket$|.*-trusted-bucket$'
+        echo "----------------------------------------------------------------------------------------"
+        echo "Test Bucket"
+        aws s3api create-bucket --bucket dev-samplebucket --region ap-south-1 --create-bucket-configuration LocationConstraint=ap-south-1
+        aws s3 ls
+        echo "Bucket created successfully"
+        echo "----------------------------------------------------------------------------------------"
+        echo "This is some sample text." > sample-file.txt
+        aws s3 cp sample-file.txt s3://dev-samplebucket/sample-file.txt 
+        aws s3 ls s3://dev-samplebucket/ --recursive
+        echo "File added successfully"
+        echo "----------------------------------------------------------------------------------------"
+        aws s3 rm s3://dev-samplebucket/sample-file.txt
+        aws s3 ls s3://dev-samplebucket/ --recursive
+        echo "File removed successfully"
+        echo "----------------------------------------------------------------------------------------"
+        aws s3 rb s3://dev-samplebucket --force
+        aws s3 ls | grep -E '.*dev-samplebucket$'
+        echo "Bucket removed successfully"
+        echo "========================================================================================="
+        
+  post_build:
+    commands:
+      - echo Build complete

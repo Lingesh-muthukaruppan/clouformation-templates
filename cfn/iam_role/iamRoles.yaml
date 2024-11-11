@@ -109,7 +109,7 @@ Resources:
                   - sqs:GetQueueUrl
                   - sqs:ListQueues
                 Resource: 
-                  - !Sub arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${QueueName}
+                  - !Sub 'arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:${QueueName}'
 
 
 Outputs: 
