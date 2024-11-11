@@ -47,6 +47,9 @@ phases:
         maciefilename="macie.yaml"
         maciefile=$CODEBUILD_SRC_DIR/cfn/"${maciefilename}"
         echo $maciefile
+        sqsfilename="sqs.yaml"
+        sqsfile=$CODEBUILD_SRC_DIR/cfn/"${sqsfilename}"
+        echo $sqsfile
         aws s3 cp $iamrolefile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $bucketfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $gluedbfile s3://tpg-my-bucket/cicd-files/
@@ -56,6 +59,7 @@ phases:
         aws s3 cp $redshiftServerlessfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $dmsfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $maciefile s3://tpg-my-bucket/cicd-files/
+        aws s3 cp $sqsfile s3://tpg-my-bucket/cicd-files/
         iamroleurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/iamRoles.yaml
         bucketurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/bucket.yaml
         GlueDBurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_database.yaml
@@ -65,11 +69,12 @@ phases:
         redshiftserverlessurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/redshiftServerless.yaml
         dmsurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dms.yaml
         macieurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/macie.yaml
+        sqsurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/sqs.yaml
 
         aws cloudformation deploy \
           --template-file $cfnfile \
           --stack-name tpg-stack \
-          --parameter-overrides EnvType="${env}" DomainName="${domain}" IamRoleUrl="${iamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}" MacieStackUrl="${macieurl}"\
+          --parameter-overrides EnvType="${env}" DomainName="${domain}" IamRoleUrl="${iamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}" MacieStackUrl="${macieurl} SqsStackUrl="${sqsurl}"\
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
   post_build:
     commands:

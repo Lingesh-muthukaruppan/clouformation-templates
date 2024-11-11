@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create an SQS Queue
+
+Parameters:
+  EnvType:
+    Type: String
+    Default: "dev"
+    Description: The environment type (e.g., prod, dev)
+
+  DomainName:
+    Type: String
+    Description: The name of the domain
+
+Resources:
+  MyQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName:  
+          Fn::Join:
+            - "-"
+            - [ !Ref DomainName, !Ref EnvType, "Queue"]
+      VisibilityTimeout: 60  # Set the visibility timeout in seconds
+      MessageRetentionPeriod: 86400    # Message retention in seconds (1 day)
+      MaximumMessageSize: 262144  # Maximum message size in bytes (256 KB)
+      DelaySeconds: 0  # Delay delivery for messages in seconds (0 = no delay)
+      KmsMasterKeyId: "alias/aws/sqs"
+      RedrivePolicy:  # Configure dead-letter queue (DLQ) settings if needed
+        deadLetterTargetArn: !GetAtt MyDeadLetterQueue.Arn
+        maxReceiveCount: 5
+
+  MyDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName:  
+          Fn::Join:
+            - "-"
+            - [ !Ref DomainName, !Ref EnvType, "DLQueue"]
+      MessageRetentionPeriod: 1209600  # Retention period for DLQ in seconds (14 days)
+
+Outputs:
+  QueueURL:
+    Description: "URL of the SQS queue"
+    Value: !Ref MyQueue
+
+  SQSQueueARN:
+    Description: "ARN of the SQS queue"
+    Value: !GetAtt MyQueue.Arn
+    Export:
+      Name: MyQueueARN 

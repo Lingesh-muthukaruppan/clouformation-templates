@@ -147,13 +147,20 @@ Parameters:
   #Macie Parameters
   MacieStackUrl:
     Type: String
-    Description: 'Name of the Macie Stack Url'      
+    Description: 'Name of the Macie Stack Url'
+  
+  #SQS Parameters
+  SqsStackUrl:
+    Type: String
+    Description: 'Name of the SQS Stack Url'  
+
 
 Resources:
   IAMRoleStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Ref IamRoleUrl
+      SQSQueueARN: !GetAtt SqsStack.Outputs.SQSQueueARN
 
   s3buckets:
     Type: AWS::CloudFormation::Stack
@@ -236,6 +243,14 @@ Resources:
     Properties:
       TemplateURL: !Ref MacieStackUrl
 
+  SqsStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref SqsStackUrl
+      Parameters:
+        EnvType: !Ref EnvType
+        DomainName: !Ref DomainName   
+
 Outputs:
   LandingBucketName:
     Description: The name of the Landing S3 bucket
@@ -284,6 +299,9 @@ Outputs:
     Value: !GetAtt RedshiftVPCStack.Outputs.SecurityGroupId
   WorkgroupEndpoint:
     Description: 'The endpoint of the Redshift Serverless workgroup'
-    Value: !GetAtt RedshiftServerlessStack.Outputs.WorkgroupEndpoint                     
+    Value: !GetAtt RedshiftServerlessStack.Outputs.WorkgroupEndpoint
+  SQSQueueARN:
+    Description: 'The ARN of the SQS Queue'
+    Value: !GetAtt SqsStack.Outputs.SQSQueueARN                        
 
 
