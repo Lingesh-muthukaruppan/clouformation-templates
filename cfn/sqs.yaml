@@ -63,7 +63,7 @@ Resources:
                   - sqs:GetQueueUrl
                   - sqs:ListQueues
                 Resource: 
-                   - !GetAtt MySQSQueue.Arn
+                   - !GetAtt MyQueue.Arn
 
 Outputs:
   QueueURL:

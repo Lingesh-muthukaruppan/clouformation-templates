@@ -78,6 +78,7 @@ Resources:
                 Resource: 
                   - "*"
 
+
 Outputs: 
   DMSIAMRole:
     Description: 'Name of the created DMS IAM role'
@@ -86,4 +87,4 @@ Outputs:
       Name: DMSIAMRole
   RedshiftIamRoleName:
     Description: 'Name of the created Redshift role'
-    Value: !Ref RedshiftServerlessReadOnlyRole    
+    Value: !Ref RedshiftServerlessReadOnlyRole       
