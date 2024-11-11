@@ -42,7 +42,7 @@ Outputs:
     Description: "URL of the SQS queue"
     Value: !Ref MyQueue
 
-  SQSQueueARN:
+  QueueARN:
     Description: "ARN of the SQS queue"
     Value: !GetAtt MyQueue.Arn
     Export:

@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create IAM roles
 
-SQSQueueARN:
+QueueARN:
     Type: String
     Description: 'SQS Queue ARN'
 
@@ -107,7 +107,7 @@ Resources:
                   - sqs:GetQueueAttributes
                   - sqs:GetQueueUrl
                   - sqs:ListQueues
-                Resource: !Ref SQSQueueARN           
+                Resource: !Ref QueueARN           
 
 Outputs: 
   DMSIAMRole:
