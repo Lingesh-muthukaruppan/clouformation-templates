@@ -45,5 +45,3 @@ Outputs:
   QueueARN:
     Description: "ARN of the SQS queue"
     Value: !GetAtt MyQueue.Arn
-    Export:
-      Name: MyQueueARN 

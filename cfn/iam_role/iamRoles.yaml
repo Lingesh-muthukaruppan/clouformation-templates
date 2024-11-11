@@ -1,9 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create IAM roles
 
-MyQueueARN:
-    Type: String
-    Description: 'SQS Queue ARN'
+Parameters:
+  MyQueueARN:
+      Type: String
+      Description: 'SQS Queue ARN'
 
 Resources:
 #Redshift Role
@@ -107,7 +108,7 @@ Resources:
                   - sqs:GetQueueAttributes
                   - sqs:GetQueueUrl
                   - sqs:ListQueues
-                Resource: !ImportValue MyQueueARN          
+                Resource: !Ref MyQueueARN         
 
 Outputs: 
   DMSIAMRole:
