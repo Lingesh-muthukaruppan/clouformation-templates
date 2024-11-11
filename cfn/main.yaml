@@ -160,7 +160,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Ref IamRoleUrl
-      QueueARN: !GetAtt SqsStack.Outputs.QueueARN
+      MyQueueARN: !GetAtt SqsStack.Outputs.MyQueueARN
 
   s3buckets:
     Type: AWS::CloudFormation::Stack
@@ -300,8 +300,8 @@ Outputs:
   WorkgroupEndpoint:
     Description: 'The endpoint of the Redshift Serverless workgroup'
     Value: !GetAtt RedshiftServerlessStack.Outputs.WorkgroupEndpoint
-  QueueARN:
+  MyQueueARN:
     Description: 'The ARN of the SQS Queue'
-    Value: !GetAtt SqsStack.Outputs.QueueARN                        
+    Value: !GetAtt SqsStack.Outputs.MyQueueARN                        
 
 
