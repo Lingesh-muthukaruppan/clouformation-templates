@@ -45,3 +45,9 @@ Outputs:
   QueueARN:
     Description: "ARN of the SQS queue"
     Value: !GetAtt MyQueue.Arn
+
+  QueueName:
+    Description: "Name of the SQS queue"
+    Value: !Join 
+      - "-"
+      - [ !Ref DomainName, !Ref EnvType, "Queue"]  
