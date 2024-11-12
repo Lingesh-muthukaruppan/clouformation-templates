@@ -152,14 +152,33 @@ Parameters:
   #SQS Parameters
   SqsStackUrl:
     Type: String
-    Description: 'Name of the SQS Stack Url'  
+    Description: 'Name of the SQS Stack Url' 
 
+#Glue Job Parameters
+  ScriptBucketName:
+    Type: String
+    Description: 'Name of the S3 bucket for Glue scripts'
+    Default: 'tpg-my-bucket'
+  ScriptKey:
+    Type: String
+    Description: 'S3 key for the Glue job script'
+    Default: 'scripts/gluejob.py'    
+  GlueJobPath:
+    Type: String
+    Description: 'Glue Job yaml path Parameters'     
+  RetentionInDays:
+    Type: Number
+    Default: 30
+    Description: The number of days to retain log events       
 
 Resources:
   IAMRoleStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Ref IamRoleUrl
+      Parameters:
+        EnvType: !Ref EnvType
+        DomainName: !Ref DomainName    
 
   s3buckets:
     Type: AWS::CloudFormation::Stack
@@ -250,6 +269,20 @@ Resources:
         EnvType: !Ref EnvType
         DomainName: !Ref DomainName   
 
+  GlueJob:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref GlueJobPath
+      Parameters:
+        EnvType: !Ref EnvType
+        DomainName: !Ref DomainName
+        ScriptBucketName: !Ref ScriptBucketName
+        ScriptKey: !Ref ScriptKey
+        SourceBucketName: s3buckets.Outputs.RawS3BucketName
+        TargetBucketName: s3buckets.Outputs.TrustedS3BucketName
+        JobRoleArn: !GetAtt IAMRoleStack.Outputs.GlueJobRoleArn
+        RetentionInDays: !Ref RetentionInDays        
+
 Outputs:
   LandingBucketName:
     Description: The name of the Landing S3 bucket
@@ -304,6 +337,12 @@ Outputs:
     Value: !GetAtt SqsStack.Outputs.QueueARN    
   QueueName:
     Description: 'The Name of the SQS Queue'
-    Value: !GetAtt SqsStack.Outputs.QueueName                       
+    Value: !GetAtt SqsStack.Outputs.QueueName     
+  GlueJobRoleArn:      
+    Description: 'Glue Job IAM Role'
+    Value: !GetAtt IAMRoleStack.Outputs.GlueJobRoleArn
+  JobName:
+    Description: 'The name of the created Glue Job'
+    Value: !GetAtt GlueJob.Outputs.JobName                          
 
 
