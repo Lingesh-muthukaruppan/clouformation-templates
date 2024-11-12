@@ -78,6 +78,33 @@ Resources:
                 Resource: 
                   - "*"
 
+### IAM Role for SQS ###     
+  MyQueueIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MyQueueAccessRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"  # Replace this with the service or entity that will assume the role
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: SQSAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                  - sqs:GetQueueUrl
+                  - sqs:ListQueues
+                Resource: 
+                   - "*"
 
 Outputs: 
   DMSIAMRole:
@@ -87,4 +114,7 @@ Outputs:
       Name: DMSIAMRole
   RedshiftIamRoleName:
     Description: 'Name of the created Redshift role'
-    Value: !Ref RedshiftServerlessReadOnlyRole       
+    Value: !Ref RedshiftServerlessReadOnlyRole 
+  MyQueueIAMRole:
+    Description: 'Name of the MyQueue IAM Role'
+    Value: !Ref MyQueueIAMRole      
