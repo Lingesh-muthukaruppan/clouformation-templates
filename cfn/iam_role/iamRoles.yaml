@@ -41,7 +41,7 @@ Resources:
   DMSIAMRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: DMSRole
+      RoleName: !Sub ${EnvType}-${DomainName}-dms-role
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -77,7 +77,7 @@ Resources:
   MyQueueIAMRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: MyQueueAccessRole
+      RoleName: !Sub ${EnvType}-${DomainName}-sqs-role
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
