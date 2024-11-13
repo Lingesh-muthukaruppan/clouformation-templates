@@ -32,8 +32,12 @@ Parameters:
     Type: String
 
   BaseCapacity:
+    Description: 'Redshift Processing Units (RPUs)'
     Type: Number
-    Description: 'Redshift Processing Units (RPUs)'  
+
+  Accounttype:
+    Description: Account Type for Redhsift
+    Type: String  
 
 Resources:
   RedshiftNamespace:
@@ -45,7 +49,7 @@ Resources:
           - [!Ref Accounttype, "ns"]
       DbName:
          Fn::Join:
-          - "-"
+          - "_"
           - [!Ref EnvType, !Ref DomainName]
       AdminUsername: !Ref AdminUsername
       AdminUserPassword: !Ref AdminUserPassword
