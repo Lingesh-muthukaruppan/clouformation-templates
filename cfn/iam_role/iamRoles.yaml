@@ -24,7 +24,7 @@ Resources:
               Service: redshift-serverless.amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonRedshiftAllCommandsFullAccess
+        - arn:aws:iam::aws:policy/AmazonRedshiftAllCommandsFullAccess
       Policies:
         - PolicyName: RedshiftServerlessPolicy
           PolicyDocument:
