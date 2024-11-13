@@ -12,44 +12,30 @@ Parameters:
 
 Resources:
 #Redshift Role
-  RedshiftServerlessReadOnlyRole:
-    Type: "AWS::IAM::Role"
-    Properties: 
-      RoleName: "RedshiftServerlessReadOnlyRole"
-      AssumeRolePolicyDocument: 
-        Version: "2012-10-17"
-        Statement: 
-          - Effect: "Allow"
-            Principal: 
-              Service: 
-                - "redshift-serverless.amazonaws.com"
-            Action: 
-              - "sts:AssumeRole"
+  RedshiftServerlessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${EnvType}-${DomainName}-redshift-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: redshift-serverless.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonRedshiftAllCommandsFullAccess
       Policies:
-        - PolicyName: "RedshiftServerlessReadOnlyPolicy"
+        - PolicyName: RedshiftServerlessPolicy
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
-              - Effect: "Allow"
+              - Effect: Allow
                 Action:
-                  - "redshift-serverless:GetWorkgroup"
-                  - "redshift-serverless:ListWorkgroups"
-                  - "redshift-serverless:GetNamespace"
-                  - "redshift-serverless:ListNamespaces"
-                  - "redshift-serverless:GetSnapshot"
-                  - "redshift-serverless:ListSnapshots"
-                  - "redshift-serverless:GetUsageLimit"
-                  - "redshift-serverless:ListUsageLimits"
-                  - "redshift-serverless:GetTableRestoreStatus"
-                  - "redshift-serverless:ListTableRestoreStatuses"
-                  - "redshift-serverless:GetEndpointAccess"
-                  - "redshift-serverless:ListEndpointAccess"
-                  - "redshift:GetClusterCredentials"
-                  - "redshift:DescribeClusters"
-                  - "redshift:DescribeTables"
-                  - "redshift:DescribeDatabase"
-                  - "redshift:ExecuteQuery"
-                Resource: "*"
+                  - 's3:GetObject'
+                  - 's3:ListBucket'
+                  - 's3:PutObject'
+                Resource: '*'
 
   ### IAM Role for DMS ###
   DMSIAMRole:
@@ -165,10 +151,10 @@ Outputs:
       Name: DMSIAMRole
   RedshiftIamRoleName:
     Description: 'Name of the created Redshift role'
-    Value: !Ref RedshiftServerlessReadOnlyRole
+    Value: !Ref RedshiftServerlessRole
   RedshiftIamRoleArn:
     Description: 'ARN of the Redshift Serverless IAM Role'
-    Value: !GetAtt RedshiftServerlessReadOnlyRole.Arn
+    Value: !GetAtt RedshiftServerlessRole.Arn
   MyQueueIAMRole:
     Description: 'Name of the MyQueue IAM Role'
     Value: !Ref MyQueueIAMRole
