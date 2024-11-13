@@ -1,0 +1,164 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  # ECS Task Execution Role
+  ECSTaskExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: ECSTaskExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: ecsTaskExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:GetAuthorizationToken
+                  - ecr:BatchCheckLayerAvailability
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:CreateLogGroup
+                  - logs:DescribeLogStreams
+                  - logs:GetLogEvents
+                  - ecs:StartTask
+                  - ssm:SendCommand
+                  - ssm:GetCommandInvocation
+                Resource: "*"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+ # CloudWatch Log Group for Container Logs
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/dbt-elementary
+      RetentionInDays: 7       
+
+  # ECS Cluster
+  DbtEcsCluster:
+    Type: AWS::ECS::Cluster
+    Properties: 
+      ClusterName: "DBTECSCluster"
+
+  # ECS Task Definition
+  DbtTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: "DbtTask"
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: "1024" 
+      Memory: "2048"
+      NetworkMode: awsvpc
+      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      ContainerDefinitions:
+        - Name: dbt-elementary-container
+          Image: 451541759827.dkr.ecr.us-east-1.amazonaws.com/dbt-redshift-repo:latest
+          Essential: true
+          PortMappings:
+            - ContainerPort: 80
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref LogGroup
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: ecs
+              awslogs-create-group: "true"
+          Command: ["/bin/sh", "-c", "dbt --version && tail -f /dev/null"]
+          Environment:
+            - Name: TERM
+              Value: xterm
+
+    # Security Group for ECS
+  DbtSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP access for DBT web server
+      VpcId: vpc-08561d91706c280b6 # Replace with your VPC ID
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0 # Allow HTTP traffic from anywhere
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0 # Allows HTTPS traffic from any IP address 
+      SecurityGroupEgress:
+          - IpProtocol: -1
+            FromPort: -1
+            ToPort: -1
+            CidrIp: 0.0.0.0/0 # Allows outbound HTTPS traffic to any IP address
+          
+  # ECS Service
+  DbtService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref DbtEcsCluster
+      DesiredCount: 1
+      TaskDefinition: !Ref DbtTaskDefinition
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets: 
+            - subnet-03d30d1b1121cdb69 # Replace with your subnet IDs
+            - subnet-0ded02dc4c9cf6fca # Replace with your subnet IDs
+          SecurityGroups:
+            - !Ref DbtSecurityGroup
+
+Outputs:
+  ClusterName:
+    Description: The name of the ECS cluster
+    Value: !Ref DbtEcsCluster
+  
+  LogGroupName:
+    Description: The name of the CloudWatch Logs log group
+    Value: !Ref LogGroup
+  
+  TaskDefinitionArn:
+    Description: The ARN of the task definition
+    Value: !Ref DbtTaskDefinition
+  
+  ServiceName:
+    Description: The name of the ECS service
+    Value: !Ref DbtService
+           
+
+  # # ECS Task Execution Role (if not already created)
+  # ECSTaskExecutionRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Version: '2012-10-17'
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Service: ecs-tasks.amazonaws.com
+  #           Action: sts:AssumeRole
+  #     Path: "/"
+  #     Policies:
+  #       - PolicyName: ecsTaskExecutionPolicy
+  #         PolicyDocument:
+  #           Version: '2012-10-17'
+  #           Statement:
+  #             - Effect: Allow
+  #               Action:
+  #                 - ecr:GetDownloadUrlForLayer
+  #                 - ecr:BatchGetImage
+  #                 - ecr:BatchCheckLayerAvailability
+  #                 - logs:CreateLogStream
+  #                 - logs:PutLogEvents
+  #                 - ecs:StartTask
+  #               Resource: "*"

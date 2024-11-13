@@ -52,7 +52,10 @@ phases:
         echo $sqsfile
         gluejobfilename="glue_job.yaml"
         gluejobfile=$CODEBUILD_SRC_DIR/cfn/"${gluejobfilename}"
-        echo $gluejobfile        
+        echo $gluejobfile 
+        dbtredshiftfilename="dbt_redshift_ecr.yaml"
+        dbtredshiftfile=$CODEBUILD_SRC_DIR/cfn/"${dbtredshiftfilename}"
+        echo $dbtredshiftfile        
         aws s3 cp $iamrolefile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $bucketfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $gluedbfile s3://tpg-my-bucket/cicd-files/
@@ -63,7 +66,8 @@ phases:
         aws s3 cp $dmsfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $maciefile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $sqsfile s3://tpg-my-bucket/cicd-files/
-        aws s3 cp $gluejobfile s3://tpg-my-bucket/cicd-files/        
+        aws s3 cp $gluejobfile s3://tpg-my-bucket/cicd-files/  
+        aws s3 cp $dbtredshiftfile s3://tpg-my-bucket/cicd-files/       
         iamroleurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/iamRoles.yaml
         bucketurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/bucket.yaml
         GlueDBurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_database.yaml
@@ -75,10 +79,12 @@ phases:
         macieurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/macie.yaml
         sqsurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/sqs.yaml
         gluejoburl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_job.yaml
+        dbtredshifturl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dbt_redshift_ecr.yaml
+
         aws cloudformation deploy \
           --template-file $cfnfile \
           --stack-name tpg-stack \
-          --parameter-overrides EnvType="${env}" DomainName="${domain}" IamRoleUrl="${iamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}" MacieStackUrl="${macieurl}" SqsStackUrl="${sqsurl}" GlueJobPath="${gluejoburl}" \
+          --parameter-overrides EnvType="${env}" DomainName="${domain}" IamRoleUrl="${iamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}" MacieStackUrl="${macieurl}" SqsStackUrl="${sqsurl}" GlueJobPath="${gluejoburl}" EcrDbtStackUrl="${dbtredshifturl}" \
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
   post_build:
     commands:

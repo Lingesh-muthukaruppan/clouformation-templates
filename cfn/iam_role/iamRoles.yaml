@@ -143,6 +143,33 @@ Resources:
                   - logs:PutLogEvents
                 Resource: '*' 
 
+# CodeBuild Service Role
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${EnvType}-${DomainName}-codebuildservice-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+         - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess
+      Policies:
+        - PolicyName: CodeBuildServiceRolePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Resource: '*'
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - ecr:*
+
 Outputs: 
   DMSIAMRole:
     Description: 'Name of the created DMS IAM role'
@@ -160,4 +187,8 @@ Outputs:
     Value: !Ref MyQueueIAMRole
   GlueJobRoleArn:
     Description: 'Name of the Glue Job Role'
-    Value: !GetAtt GlueJobRole.Arn           
+    Value: !GetAtt GlueJobRole.Arn 
+  CodeBuildServiceRoleArn:
+    Description: 'ARN of the CodeBuildServiceRole'
+    Value: !GetAtt CodeBuildServiceRole.Arn
+                

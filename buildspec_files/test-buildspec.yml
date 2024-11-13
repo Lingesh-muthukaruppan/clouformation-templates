@@ -5,7 +5,7 @@ phases:
       - |
         echo "========================================================================================="
         echo "Checking S3 buckets"
-        aws s3 ls | grep -E '.*-landing$|.*-raw$|.*-trusted$'
+        aws s3 ls | grep -E '.*-landing-bucket$|.*-raw-bucket$|.*-trusted-bucket$'
         echo "----------------------------------------------------------------------------------------"
         echo "Test Bucket"
         aws s3api create-bucket --bucket dev-samplebucket --region ap-south-1 --create-bucket-configuration LocationConstraint=ap-south-1
@@ -24,6 +24,17 @@ phases:
         aws s3 rb s3://dev-samplebucket --force
         aws s3 ls | grep -E '.*dev-samplebucket$'
         echo "Bucket removed successfully"
+        echo "========================================================================================="
+        echo "Checking Redshift Workgroups"
+        aws redshift-serverless list-workgroups --query "workgroups[*].workgroupName" --output text
+        #aws redshift-serverless list-workgroups --query "workgroups[?status=='ACTIVE'].workgroupName" --output text
+        echo "----------------------------------------------------------------------------------------"
+        echo "Checking Redshift Namespaces"
+        aws redshift-serverless list-namespaces --query "namespaces[*].namespaceName" --output text
+        #aws redshift-serverless list-namespaces --query "namespaces[?status=='ACTIVE'].namespaceName" --output text
+        echo "========================================================================================="
+        echo "Fetching AWS Glue Databases"
+        aws glue get-databases --query "DatabaseList[?ends_with(Name, '-landing-db') || ends_with(Name, '-raw-db') || ends_with(Name, '-trusted-db')].Name" --output json | jq -r '.[]'
         echo "========================================================================================="
         
   post_build:

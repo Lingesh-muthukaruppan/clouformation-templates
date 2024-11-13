@@ -128,7 +128,6 @@ Parameters:
     Type: String
     Default: nonprod
 
-    
   RedshiftServerlessStackUrl:
     Type: String
     Description: 'Name of the Redshift Serverless stack'  
@@ -180,7 +179,13 @@ Parameters:
   RetentionInDays:
     Type: Number
     Default: 30
-    Description: The number of days to retain log events       
+    Description: The number of days to retain log events 
+
+  #DBT ECR parameters
+  RepositoryName:
+    Type: String
+    Description: Name of the ECR repository
+    Default: dbt-redshift-repo        
 
 Resources:
   IAMRoleStack:
@@ -295,7 +300,20 @@ Resources:
         SourceBucketName: s3buckets.Outputs.RawS3BucketName
         TargetBucketName: s3buckets.Outputs.TrustedS3BucketName
         JobRoleArn: !GetAtt IAMRoleStack.Outputs.GlueJobRoleArn
-        RetentionInDays: !Ref RetentionInDays        
+        RetentionInDays: !Ref RetentionInDays 
+
+  EcrDbt:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref EcrDbtStackUrl
+      Parameters:
+        EnvType: !Ref EnvType
+        DomainName: !Ref DomainName
+        RepositoryName: !Ref RepositoryName
+        AdminUsername: !Ref AdminUsername
+        AdminUserPassword: !Ref AdminUserPassword
+        CodeBuildServiceRoleArn: !GetAtt IAMRoleStack.Outputs.CodeBuildServiceRoleArn
+        RedshiftHost: !GetAtt RedshiftServerlessStack.Outputs.WorkgroupEndpoint
 
 Outputs:
   LandingBucketName:
@@ -361,4 +379,7 @@ Outputs:
   RedshiftIamRoleArn:
     Description: 'Redshift  IAM Role Arn'
     Value: !GetAtt IAMRoleStack.Outputs.RedshiftIamRoleArn 
+  CodeBuildServiceRoleArn:
+    Description: 'Redshift  IAM Role Arn'
+    Value: !GetAtt IAMRoleStack.Outputs.CodeBuildServiceRoleArn  
 
