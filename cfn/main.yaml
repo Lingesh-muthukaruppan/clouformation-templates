@@ -185,7 +185,11 @@ Parameters:
   RepositoryName:
     Type: String
     Description: Name of the ECR repository
-    Default: dbt-redshift-repo        
+    Default: dbt-redshift-repo 
+    
+  EcrDbtStackUrl:
+    Type: String
+    Description: 'Name of the Ecr Dbt Stack Url'        
 
 Resources:
   IAMRoleStack:
