@@ -27,8 +27,8 @@ Parameters:
     Description: Comma-separated list of subnet IDs for the Redshift Serverless workgroup
     Type: CommaDelimitedList
 
-  RedshiftIamRoleName:
-    Description: IAM role name
+  RedshiftIamRoleArn:
+    Description: IAM role arn
     Type: String
 
   BaseCapacity:
@@ -50,7 +50,7 @@ Resources:
       AdminUsername: !Ref AdminUsername
       AdminUserPassword: !Ref AdminUserPassword
       IamRoles: 
-        - !Ref RedshiftIamRoleName # Add IAM Role ARNs if needed
+        - !Ref RedshiftIamRoleArn # Add IAM Role ARNs if needed
       LogExports:
         - userlog
         - connectionlog

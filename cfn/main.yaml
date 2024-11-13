@@ -247,7 +247,7 @@ Resources:
         AdminUsername: !Ref AdminUsername
         AdminUserPassword: !Ref AdminUserPassword
         BaseCapacity: !Ref BaseCapacity
-        RedshiftIamRoleName: !GetAtt IAMRoleStack.Outputs.RedshiftIamRoleName
+        RedshiftIamRoleArn: !GetAtt IAMRoleStack.Outputs.RedshiftIamRoleArn
         VPCSecurityGroupIds: !Join [ ",", [!GetAtt RedshiftVPCStack.Outputs.SecurityGroupId]]
         SubnetIds: !Join [ ",", [ !GetAtt RedshiftVPCStack.Outputs.PublicSubnet1Id, !GetAtt RedshiftVPCStack.Outputs.PublicSubnet2Id, !GetAtt RedshiftVPCStack.Outputs.PublicSubnet3Id ]]        
 
@@ -351,7 +351,7 @@ Outputs:
   JobName:
     Description: 'The name of the created Glue Job'
     Value: !GetAtt GlueJob.Outputs.JobName                          
-  RedshiftIamRoleName:
-    Description: 'Glue Job IAM Role'
-    Value: !GetAtt IAMRoleStack.Outputs.RedshiftIamRoleName
+  RedshiftIamRoleArn:
+    Description: 'Redshift  IAM Role Arn'
+    Value: !GetAtt IAMRoleStack.Outputs.RedshiftIamRoleArn 
 
