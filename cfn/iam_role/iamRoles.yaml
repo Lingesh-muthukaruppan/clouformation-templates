@@ -22,7 +22,7 @@ Resources:
           - Effect: "Allow"
             Principal: 
               Service: 
-                - "redshift.amazonaws.com"
+                - "redshift-serverless.amazonaws.com"
             Action: 
               - "sts:AssumeRole"
       Policies:
@@ -167,8 +167,8 @@ Outputs:
     Description: 'Name of the created Redshift role'
     Value: !Ref RedshiftServerlessReadOnlyRole
   RedshiftIamRoleArn:
-    Description: 'Name of the created Redshift role'
-    Value: !Ref RedshiftServerlessReadOnlyRole.Arn
+    Description: 'ARN of the Redshift Serverless IAM Role'
+    Value: !GetAtt RedshiftServerlessReadOnlyRole.Arn
   MyQueueIAMRole:
     Description: 'Name of the MyQueue IAM Role'
     Value: !Ref MyQueueIAMRole
