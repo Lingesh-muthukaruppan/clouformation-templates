@@ -4,3 +4,6 @@ marketing_uat=20
 finance_dev=10
 finance_sit=15
 finance_uat=20
+consumer_redshift_rpu_nonprod=8
+consumer_redshift_rpu_uat_nonprod=32
+consumer_redshift_rpu_prod=64

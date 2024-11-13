@@ -122,6 +122,12 @@ Parameters:
     Type: Number
     Default: 8
     Description: 'Redshift Processing Units (RPUs)'
+
+  Accounttype:
+    Description: Account Type for Redhsift
+    Type: String
+    Default: nonprod
+
     
   RedshiftServerlessStackUrl:
     Type: String
@@ -247,6 +253,7 @@ Resources:
         AdminUsername: !Ref AdminUsername
         AdminUserPassword: !Ref AdminUserPassword
         BaseCapacity: !Ref BaseCapacity
+        Accounttype: !Ref Accounttype
         RedshiftIamRoleArn: !GetAtt IAMRoleStack.Outputs.RedshiftIamRoleArn
         VPCSecurityGroupIds: !Join [ ",", [!GetAtt RedshiftVPCStack.Outputs.SecurityGroupId]]
         SubnetIds: !Join [ ",", [ !GetAtt RedshiftVPCStack.Outputs.PublicSubnet1Id, !GetAtt RedshiftVPCStack.Outputs.PublicSubnet2Id, !GetAtt RedshiftVPCStack.Outputs.PublicSubnet3Id ]]        
