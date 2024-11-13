@@ -134,31 +134,3 @@ Outputs:
   ServiceName:
     Description: The name of the ECS service
     Value: !Ref DbtService
-           
-
-  # # ECS Task Execution Role (if not already created)
-  # ECSTaskExecutionRole:
-  #   Type: AWS::IAM::Role
-  #   Properties:
-  #     AssumeRolePolicyDocument:
-  #       Version: '2012-10-17'
-  #       Statement:
-  #         - Effect: Allow
-  #           Principal:
-  #             Service: ecs-tasks.amazonaws.com
-  #           Action: sts:AssumeRole
-  #     Path: "/"
-  #     Policies:
-  #       - PolicyName: ecsTaskExecutionPolicy
-  #         PolicyDocument:
-  #           Version: '2012-10-17'
-  #           Statement:
-  #             - Effect: Allow
-  #               Action:
-  #                 - ecr:GetDownloadUrlForLayer
-  #                 - ecr:BatchGetImage
-  #                 - ecr:BatchCheckLayerAvailability
-  #                 - logs:CreateLogStream
-  #                 - logs:PutLogEvents
-  #                 - ecs:StartTask
-  #               Resource: "*"
