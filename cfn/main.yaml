@@ -117,6 +117,11 @@ Parameters:
     Default: Admin1234567
     AllowedPattern: '[a-zA-Z0-9!@#$%^&*()_+=-]*'
     ConstraintDescription: Must contain alphanumeric characters and symbol.
+
+  BaseCapacity:
+    Type: Number
+    Default: 8
+    Description: 'Redshift Processing Units (RPUs)'
     
   RedshiftServerlessStackUrl:
     Type: String
@@ -241,6 +246,7 @@ Resources:
         DomainName: !Ref DomainName
         AdminUsername: !Ref AdminUsername
         AdminUserPassword: !Ref AdminUserPassword
+        BaseCapacity: !Ref BaseCapacity
         RedshiftIamRoleName: !GetAtt IAMRoleStack.Outputs.RedshiftIamRoleName
         VPCSecurityGroupIds: !Join [ ",", [!GetAtt RedshiftVPCStack.Outputs.SecurityGroupId]]
         SubnetIds: !Join [ ",", [ !GetAtt RedshiftVPCStack.Outputs.PublicSubnet1Id, !GetAtt RedshiftVPCStack.Outputs.PublicSubnet2Id, !GetAtt RedshiftVPCStack.Outputs.PublicSubnet3Id ]]        

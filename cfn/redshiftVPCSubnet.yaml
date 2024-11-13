@@ -49,9 +49,6 @@ Resources:
       CidrBlock: !Ref VpcCidr
       EnableDnsSupport: true
       EnableDnsHostnames: true
-      Tags:
-        - Key: Name
-          Value: MyVPC
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -181,9 +178,6 @@ Resources:
           FromPort: -1     # Allows all outbound ports
           ToPort: -1
           CidrIp: 0.0.0.0/0
-      Tags:
-        - Key: Name
-          Value: RedshiftSecurityGroup
 
 Outputs:
   VpcId:

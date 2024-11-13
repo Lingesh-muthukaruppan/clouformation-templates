@@ -31,6 +31,10 @@ Parameters:
     Description: IAM role name
     Type: String
 
+  BaseCapacity:
+    Type: Number
+    Description: 'Redshift Processing Units (RPUs)'  
+
 Resources:
   RedshiftNamespace:
     Type: AWS::RedshiftServerless::Namespace
@@ -45,7 +49,8 @@ Resources:
           - [!Ref EnvType, !Ref DomainName, "db"]
       AdminUsername: !Ref AdminUsername
       AdminUserPassword: !Ref AdminUserPassword
-      IamRoles: !Ref RedshiftIamRoleName # Add IAM Role ARNs if needed
+      IamRoles: 
+        - !Ref RedshiftIamRoleName # Add IAM Role ARNs if needed
       LogExports:
         - userlog
         - connectionlog
@@ -62,7 +67,7 @@ Resources:
       PubliclyAccessible: true
       SecurityGroupIds: !Ref VPCSecurityGroupIds
       SubnetIds: !Ref SubnetIds
-      BaseCapacity: 8  # Measured in Redshift Processing Units (RPUs)
+      BaseCapacity: !Ref BaseCapacity # Measured in Redshift Processing Units (RPUs) 
 
 Outputs:
   WorkgroupEndpoint:
