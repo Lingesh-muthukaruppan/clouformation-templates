@@ -46,7 +46,7 @@ Resources:
   DockerBuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
-      Name: !Sub ${AWS::StackName}-dbt-docker-build
+      Name: dbt-redshift-stack-dbt-docker-build
       ServiceRole: !Ref CodeBuildServiceRoleArn
       Artifacts:
         Type: NO_ARTIFACTS
