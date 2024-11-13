@@ -49,8 +49,8 @@ Resources:
           - [!Ref EnvType, !Ref DomainName, "db"]
       AdminUsername: !Ref AdminUsername
       AdminUserPassword: !Ref AdminUserPassword
-      IamRoles: 
-        - !Ref RedshiftIamRoleArn # Add IAM Role ARNs if needed
+      IamRoles: [] 
+        #- !Ref RedshiftIamRoleArn # Add IAM Role ARNs if needed
       LogExports:
         - userlog
         - connectionlog
