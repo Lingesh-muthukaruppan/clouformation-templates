@@ -49,7 +49,7 @@ Resources:
             Condition:
               Bool:
                 aws:SecureTransport: "false"  
-                    
+
  # User Creation and its Access points
   User1:
     Type: 'AWS::IAM::User'
@@ -165,3 +165,6 @@ Outputs:
   TrustedS3BucketName:
     Description: The name of the Trusted S3 bucket
     Value: !Ref TrustedS3Bucket
+  AccessPointArn:
+    Description: ARN of the created access point
+    Value: !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/${User1AccessPoint}'  
