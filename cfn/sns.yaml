@@ -1,54 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for SNS Topic'
+
 Parameters:
+  EnvType:
+    Type: String
+    Default: "dev"
+    Description: The environment type (e.g., prod, dev)
+
+  DomainName:
+    Type: String
+    Description: The name of the domain
+
   SubscriberEmail:
     Type: AWS::SSM::Parameter::Value<String>
     Description: "The email address to subscribe to the SNS topic"
-    Default: "/sns/subscriberEmail"
 
 Resources:
-  # SNS Topic
-  MySNSTopic:
+  # SNS Topic  TpgSNSTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: MyTopic
-
-  # IAM Role for SNS to allow Lambda to use the topic
-  MySNSLambdaRole:
-    Type: AWS::IAM::Role
-    Properties: 
-      RoleName: MySNSLambdaRole
-      AssumeRolePolicyDocument: 
-        Version: "2012-10-17"
-        Statement: 
-          - Effect: Allow
-            Principal: 
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: MySNSPublishPolicy
-          PolicyDocument: 
-            Version: "2012-10-17"
-            Statement: 
-              - Effect: Allow
-                Action: 
-                  - sns:Publish
-                Resource: 
-                  - Ref: MySNSTopic
+      TopicName:
+        Fn::Join:
+            - "-"
+            - [ !Ref DomainName, !Ref EnvType, "Topic"]
 
   # Email Subscription for the SNS Topic
-  MySNSTopicSubscription:
+  TpgSNSTopicSubscription:
     Type: AWS::SNS::Subscription
     Properties:
       Protocol: email
-      Endpoint: !Ref SubscriberEmail  # Replace with the email address for subscription
+      Endpoint: {{resolve:ssm:/sns/subscriberEmail}}  # Replace with the email address for subscription
       TopicArn: 
-        Ref: MySNSTopic
+        Ref: TpgSNSTopic
 
   # SNS Topic Policy to allow Lambda invocation
   SNSInvokeLambdaPolicy:
     Type: AWS::SNS::TopicPolicy
     Properties:
       Topics:
-        - Ref: MySNSTopic
+        - Ref: TpgSNSTopic
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -57,9 +47,17 @@ Resources:
               Service: lambda.amazonaws.com
             Action: sns:Publish
             Resource: 
-              - Ref: MySNSTopic
+              - Ref: TpgSNSTopic
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action:
+              - sns:Subscribe
+              - sns:Publish
+            Resource: 
+              - Ref: TpgSNSTopic     
 
 Outputs:
   TopicArn:
     Description: "SNS Topic ARN"
-    Value: !Ref MySNSTopic
+    Value: !Ref TpgSNSTopic
