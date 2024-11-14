@@ -89,7 +89,7 @@ phases:
         aws cloudformation deploy \
           --template-file $cfnfile \
           --stack-name tpg-stack \
-          --parameter-overrides EnvType="${env}" DomainName="${domain}" IamRoleUrl="${iamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}" MacieStackUrl="${macieurl}" SqsStackUrl="${sqsurl}" GlueJobPath="${gluejoburl}" EcrDbtStackUrl="${dbtredshifturl}" SnsStackUrl="${snsurl}" \
+          --parameter-overrides EnvType="${env}" DomainName="${domain}" IamRoleUrl="${iamroleurl}" SnsStackUrl="${snsurl}" \
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
   post_build:
     commands:
