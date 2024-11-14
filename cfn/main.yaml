@@ -408,5 +408,8 @@ Outputs:
     Value: !GetAtt IAMRoleStack.Outputs.CodeBuildServiceRoleArn 
   SNSLambdaRoleArn:
     Description: 'ARN of the SNS Lambda Role'
-    Value: !GetAtt IAMRoleStack.Outputs.SNSLambdaRoleArn   
+    Value: !GetAtt IAMRoleStack.Outputs.SNSLambdaRoleArn
+  SSMParamsRoleArn:
+    Description: 'ARN of the SSMParams Role'
+    Value: !GetAtt IAMRoleStack.Outputs.SSMParamsRoleArn     
 

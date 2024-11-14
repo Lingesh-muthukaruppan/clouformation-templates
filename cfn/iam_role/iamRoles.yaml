@@ -169,7 +169,28 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                   - ecr:*
-
+  SSMParamsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${EnvType}-${DomainName}-SSMParamsRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudformation.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SSMAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*'
+                
   # IAM Role for SNS to allow Lambda to use the topic
   SNSLambdaRole:
     Type: AWS::IAM::Role
@@ -195,7 +216,8 @@ Resources:
                   - sns:SetTopicAttributes
                   - sns:PutTopicPolicy
                   - ssm:GetParameter
-                Resource: '*'                         
+                Resource: '*'
+
 
 Outputs: 
   DMSIAMRole:
@@ -220,5 +242,8 @@ Outputs:
     Value: !GetAtt CodeBuildServiceRole.Arn
   SNSLambdaRoleArn:
     Description: 'ARN of the SNS Lambda Role'
-    Value: !GetAtt SNSLambdaRole.Arn  
+    Value: !GetAtt SNSLambdaRole.Arn
+  SSMParamsRoleArn:
+    Description: 'ARN of the SSMParams Role'
+    Value: !GetAtt SSMParamsRole.Arn    
                 
