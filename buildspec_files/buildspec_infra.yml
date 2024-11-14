@@ -55,7 +55,10 @@ phases:
         echo $gluejobfile 
         dbtredshiftfilename="dbt_redshift_ecr.yaml"
         dbtredshiftfile=$CODEBUILD_SRC_DIR/cfn/"${dbtredshiftfilename}"
-        echo $dbtredshiftfile        
+        echo $dbtredshiftfile
+        snsfilename="sns.yaml"
+        snsfile=$CODEBUILD_SRC_DIR/cfn/"${snsfilename}"
+        echo $snsfile       
         aws s3 cp $iamrolefile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $bucketfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $gluedbfile s3://tpg-my-bucket/cicd-files/
@@ -80,11 +83,12 @@ phases:
         sqsurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/sqs.yaml
         gluejoburl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_job.yaml
         dbtredshifturl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dbt_redshift_ecr.yaml
+        snsurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/sns.yaml
 
         aws cloudformation deploy \
           --template-file $cfnfile \
           --stack-name tpg-stack \
-          --parameter-overrides EnvType="${env}" DomainName="${domain}" IamRoleUrl="${iamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}" MacieStackUrl="${macieurl}" SqsStackUrl="${sqsurl}" GlueJobPath="${gluejoburl}" EcrDbtStackUrl="${dbtredshifturl}" \
+          --parameter-overrides EnvType="${env}" DomainName="${domain}" IamRoleUrl="${iamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}" MacieStackUrl="${macieurl}" SqsStackUrl="${sqsurl}" GlueJobPath="${gluejoburl}" EcrDbtStackUrl="${dbtredshifturl}" SnsStackUrl="${snsurl}" \
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
   post_build:
     commands:

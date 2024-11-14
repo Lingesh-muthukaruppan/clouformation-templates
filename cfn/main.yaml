@@ -189,7 +189,17 @@ Parameters:
     
   EcrDbtStackUrl:
     Type: String
-    Description: 'Name of the Ecr Dbt Stack Url'        
+    Description: 'Name of the Ecr Dbt Stack Url'  
+
+ #SNS Parameters
+  SnsStackUrl:
+    Type: String
+    Description: 'Name of the SNS Stack Url'
+
+  SubscriberEmail:
+    Type: AWS::SSM::Parameter::Value<String>
+    Description: "The email address to subscribe to the SNS topic"
+    Default: "/sns/subscriberEmail"         
 
 Resources:
   IAMRoleStack:
@@ -319,6 +329,16 @@ Resources:
         CodeBuildServiceRoleArn: !GetAtt IAMRoleStack.Outputs.CodeBuildServiceRoleArn
         RedshiftHost: !GetAtt RedshiftServerlessStack.Outputs.WorkgroupEndpoint
 
+  SNSStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref SnsStackUrl
+      Parameters:
+        EnvType: !Ref EnvType
+        DomainName: !Ref DomainName
+        SubscriberEmail: !Ref SubscriberEmail
+              
+
 Outputs:
   LandingBucketName:
     Description: The name of the Landing S3 bucket
@@ -385,5 +405,8 @@ Outputs:
     Value: !GetAtt IAMRoleStack.Outputs.RedshiftIamRoleArn 
   CodeBuildServiceRoleArn:
     Description: 'Redshift  IAM Role Arn'
-    Value: !GetAtt IAMRoleStack.Outputs.CodeBuildServiceRoleArn  
+    Value: !GetAtt IAMRoleStack.Outputs.CodeBuildServiceRoleArn 
+  SNSLambdaRoleArn:
+    Description: 'ARN of the SNS Lambda Role'
+    Value: !GetAtt IAMRoleStack.Outputs.SNSLambdaRoleArn   
 

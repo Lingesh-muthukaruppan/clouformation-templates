@@ -1,0 +1,53 @@
+Parameters:
+  EnvType:
+    Type: String
+    Default: "dev"
+    Description: The environment type (e.g., prod, dev)
+
+  DomainName:
+    Type: String
+    Description: The name of the domain
+
+  SubscriberEmail:
+    Type: AWS::SSM::Parameter::Value<String>
+    Description: "The email address to subscribe to the SNS topic"
+
+Resources:
+  # SNS Topic
+  TpgSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName:
+        Fn::Join:
+            - "-"
+            - [ !Ref DomainName, !Ref EnvType, "Topic"]
+
+  # Email Subscription for the SNS Topic
+  TpgSNSTopicSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: email
+      Endpoint: !Ref SubscriberEmail  # Replace with the email address for subscription
+      TopicArn: 
+        Ref: TpgSNSTopic
+
+  # SNS Topic Policy to allow Lambda invocation
+  SNSInvokeLambdaPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - Ref: TpgSNSTopic
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sns:Publish
+            Resource: 
+              - Ref: TpgSNSTopic
+
+Outputs:
+  TopicArn:
+    Description: "SNS Topic ARN"
+    Value: !Ref TpgSNSTopic

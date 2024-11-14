@@ -170,6 +170,28 @@ Resources:
                   - logs:PutLogEvents
                   - ecr:*
 
+  # IAM Role for SNS to allow Lambda to use the topic
+  SNSLambdaRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      RoleName: !Sub ${EnvType}-${DomainName}-SNSLambdaRole
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: Allow
+            Principal: 
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SNSPublishPolicy
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement: 
+              - Effect: Allow
+                Action: 
+                  - sns:Publish
+                Resource: '*'                           
+
 Outputs: 
   DMSIAMRole:
     Description: 'Name of the created DMS IAM role'
@@ -189,6 +211,9 @@ Outputs:
     Description: 'Name of the Glue Job Role'
     Value: !GetAtt GlueJobRole.Arn 
   CodeBuildServiceRoleArn:
-    Description: 'ARN of the CodeBuildServiceRole'
+    Description: 'ARN of the CodeBuild Service Role'
     Value: !GetAtt CodeBuildServiceRole.Arn
+  SNSLambdaRoleArn:
+    Description: 'ARN of the SNS Lambda Role'
+    Value: !GetAtt SNSLambdaRole.Arn  
                 
