@@ -13,7 +13,6 @@ Parameters:
 
   SubscriberEmail:
     Type: AWS::SSM::Parameter::Value<String>
-    Default: "/sns/subscriberEmail"
     Description: "The email address to subscribe to the SNS topic"
 
 Resources:
