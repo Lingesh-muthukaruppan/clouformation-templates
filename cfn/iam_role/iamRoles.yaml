@@ -216,6 +216,7 @@ Resources:
                   - sns:SetTopicAttributes
                   - sns:PutTopicPolicy
                   - ssm:GetParameter
+                  - ssm:GetParameters
                 Resource: '*'
 
 
