@@ -47,16 +47,14 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: sns:Publish
-            Resource: 
-              - Ref: TpgSNSTopic
+            Resource: !Ref TpgSNSTopic
           - Effect: Allow
             Principal:
               AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
             Action:
               - sns:Subscribe
               - sns:Publish
-            Resource: 
-              - Ref: TpgSNSTopic     
+            Resource: !Ref TpgSNSTopic 
 
 Outputs:
   TopicArn:
