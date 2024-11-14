@@ -70,7 +70,8 @@ phases:
         aws s3 cp $maciefile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $sqsfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $gluejobfile s3://tpg-my-bucket/cicd-files/  
-        aws s3 cp $dbtredshiftfile s3://tpg-my-bucket/cicd-files/       
+        aws s3 cp $dbtredshiftfile s3://tpg-my-bucket/cicd-files/
+        aws s3 cp $snsfile s3://tpg-my-bucket/cicd-files/      
         iamroleurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/iamRoles.yaml
         bucketurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/bucket.yaml
         GlueDBurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_database.yaml
