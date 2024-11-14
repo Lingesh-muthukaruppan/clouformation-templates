@@ -85,10 +85,11 @@ phases:
         gluejoburl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_job.yaml
         dbtredshifturl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dbt_redshift_ecr.yaml
         snsurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/sns.yaml
+
         aws cloudformation deploy \
           --template-file $cfnfile \
           --stack-name tpg-stack \
-          --parameter-overrides EnvType="${env}" DomainName="${domain}" IamRoleUrl="${iamroleurl}" SnsStackUrl="${snsurl}" \
+          --parameter-overrides EnvType="${env}" DomainName="${domain}" IamRoleUrl="${iamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}" MacieStackUrl="${macieurl}" SqsStackUrl="${sqsurl}" GlueJobPath="${gluejoburl}" EcrDbtStackUrl="${dbtredshifturl}" SnsStackUrl="${snsurl}" \
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
   post_build:
     commands:
