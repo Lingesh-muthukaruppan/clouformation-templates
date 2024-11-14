@@ -85,7 +85,6 @@ phases:
         gluejoburl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_job.yaml
         dbtredshifturl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dbt_redshift_ecr.yaml
         snsurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/sns.yaml
-
         aws cloudformation deploy \
           --template-file $cfnfile \
           --stack-name tpg-stack \
