@@ -11,12 +11,13 @@ Parameters:
     Type: String
     Description: The name of the domain
 
-  SubscriberEmail:
-    Type: AWS::SSM::Parameter::Value<String>
-    Description: "The email address to subscribe to the SNS topic"
+  # SubscriberEmail:
+  #   Type: AWS::SSM::Parameter::Value<String>
+  #   Description: "The email address to subscribe to the SNS topic"
 
 Resources:
-  # SNS Topic  TpgSNSTopic:
+  # SNS Topic  
+  TpgSNSTopic:
     Type: AWS::SNS::Topic
     Properties:
       TopicName:
