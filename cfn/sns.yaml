@@ -30,7 +30,7 @@ Resources:
     Type: AWS::SNS::Subscription
     Properties:
       Protocol: email
-      Endpoint: {{resolve:ssm:/sns/subscriberEmail}}  # Replace with the email address for subscription
+      Endpoint: "{{resolve:ssm:/sns/subscriberEmail}}"  # Replace with the email address for subscription
       TopicArn: 
         Ref: TpgSNSTopic
 
