@@ -190,7 +190,12 @@ Resources:
               - Effect: Allow
                 Action: 
                   - sns:Publish
-                Resource: '*'                           
+                  - sns:CreateTopic
+                  - sns:Subscribe
+                  - sns:SetTopicAttributes
+                  - sns:PutTopicPolicy
+                  - ssm:GetParameter
+                Resource: '*'                         
 
 Outputs: 
   DMSIAMRole:
