@@ -48,7 +48,36 @@ Resources:
               - !Sub "arn:aws:s3:::${LandingS3Bucket}/*"
             Condition:
               Bool:
-                aws:SecureTransport: "false"      
+                aws:SecureTransport: "false"  
+                    
+ # User Creation and its Access points
+  User1:
+    Type: 'AWS::IAM::User'
+    Properties:
+      UserName:
+        Fn::Join:
+          - "_"
+          - [ "svc", "crm", !Ref EnvType]
+
+  User1AccessPoint:
+    Type: 'AWS::S3::AccessPoint'
+    Properties:
+      Bucket: !Ref LandingS3Bucket
+      Name:
+        Fn::Join:
+          - "_"
+          - [ "crm", "ap", !Ref EnvType]
+      Policy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              AWS: !GetAtt User1.Arn
+            Action:
+              - 's3:GetObject'
+              - 's3:PutObject'
+            Resource: !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/${User1AccessPoint}/object/*'
+        
 
   RawS3Bucket:
     Type: 'AWS::S3::Bucket'
