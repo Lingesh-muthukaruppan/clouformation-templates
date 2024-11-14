@@ -189,7 +189,7 @@ Resources:
                 Action:
                   - ssm:GetParameter
                   - ssm:GetParameters
-                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/sns/subscriberEmail'
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/*'
                 
   # IAM Role for SNS to allow Lambda to use the topic
   SNSLambdaRole:

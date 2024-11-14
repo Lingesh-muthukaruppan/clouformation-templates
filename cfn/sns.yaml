@@ -29,31 +29,6 @@ Resources:
       Endpoint: !Sub '{{resolve:ssm:/sns/subscriberEmail}}'
       TopicArn: !Ref TpgSNSTopic
 
-  # # SNS Topic Policy
-  # SNSInvokeLambdaPolicy:
-  #   Type: AWS::SNS::TopicPolicy
-  #   Properties:
-  #     Topics: 
-  #       - !Ref TpgSNSTopic
-  #     PolicyDocument:
-  #       Id: SNSTopicPolicy
-  #       Version: "2012-10-17"
-  #       Statement:
-  #         - Sid: AllowLambdaPublish
-  #           Effect: Allow
-  #           Principal:
-  #             Service: "lambda.amazonaws.com"
-  #           Action: "sns:Publish"
-  #           Resource: !GetAtt TpgSNSTopic.TopicArn
-  #         - Sid: AllowAccountAccess
-  #           Effect: Allow
-  #           Principal:
-  #             AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
-  #           Action:
-  #             - "sns:Subscribe"
-  #             - "sns:Publish"
-  #           Resource: !GetAtt TpgSNSTopic.TopicArn
-
 Outputs:
   TopicArn:
     Description: "SNS Topic ARN"

@@ -194,12 +194,7 @@ Parameters:
  #SNS Parameters
   SnsStackUrl:
     Type: String
-    Description: 'Name of the SNS Stack Url'
-
-  # SubscriberEmail:
-  #   Type: AWS::SSM::Parameter::Value<String>
-  #   Description: "The email address to subscribe to the SNS topic"
-  #   Default: "/sns/subscriberEmail"         
+    Description: 'Name of the SNS Stack Url'         
 
 Resources:
   IAMRoleStack:
