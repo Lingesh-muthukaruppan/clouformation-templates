@@ -40,6 +40,15 @@ Parameters:
     Type: String  
 
 Resources:
+  RedshiftSecret:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name:
+        Fn::Join:
+          - "-"
+          - ["tpgt",!Ref DomainName,!Ref EnvType,"secret"]
+      Description: 'Redshift Serverless database credentials'
+      SecretString: !Sub '{"username": "${AdminUsername}", "password": "${AdminUserPassword}"}'
   RedshiftNamespace:
     Type: AWS::RedshiftServerless::Namespace
     Properties:
@@ -51,8 +60,8 @@ Resources:
          Fn::Join:
           - "_"
           - [!Ref EnvType, !Ref DomainName]
-      AdminUsername: !Ref AdminUsername
-      AdminUserPassword: !Ref AdminUserPassword
+      AdminUsername: !Sub '{{resolve:secretsmanager:${RedshiftSecret}:SecretString:username}}'
+      AdminUserPassword: !Sub '{{resolve:secretsmanager:${RedshiftSecret}:SecretString:password}}'
       IamRoles:
         - !Ref RedshiftIamRoleArn # Add IAM Role ARNs if needed
       LogExports:

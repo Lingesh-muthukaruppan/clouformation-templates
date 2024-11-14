@@ -406,5 +406,8 @@ Outputs:
     Value: !GetAtt IAMRoleStack.Outputs.SNSLambdaRoleArn
   SSMParamsRoleArn:
     Description: 'ARN of the SSMParams Role'
-    Value: !GetAtt IAMRoleStack.Outputs.SSMParamsRoleArn     
+    Value: !GetAtt IAMRoleStack.Outputs.SSMParamsRoleArn
+  RedshiftSecretAccessRoleArn:
+    Description: 'ARN of the SSMParams Role'
+    Value: !GetAtt IAMRoleStack.Outputs.RedshiftSecretAccessRoleArn        
 

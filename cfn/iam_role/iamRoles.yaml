@@ -219,6 +219,25 @@ Resources:
                   - ssm:GetParameters
                 Resource: '*'
 
+  RedshiftSecretAccessRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub ${EnvType}-${DomainName}-RedshiftSecretAccessRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service: 'redshift-serverless.amazonaws.com'
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: 'RedshiftSecretAccessPolicy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action: 'secretsmanager:GetSecretValue'
+                Resource: '*'
 
 Outputs: 
   DMSIAMRole:
@@ -246,5 +265,8 @@ Outputs:
     Value: !GetAtt SNSLambdaRole.Arn
   SSMParamsRoleArn:
     Description: 'ARN of the SSMParams Role'
-    Value: !GetAtt SSMParamsRole.Arn    
+    Value: !GetAtt SSMParamsRole.Arn  
+  RedshiftSecretAccessRoleArn:
+    Description: 'ARN of the Redshift Secret Access Role'
+    Value: !GetAtt RedshiftSecretAccessRole.Arn    
                 
