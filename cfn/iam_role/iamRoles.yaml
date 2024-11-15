@@ -219,6 +219,7 @@ Resources:
                   - ssm:GetParameters
                 Resource: '*'
 
+#Redshift Secret Acces Role
   RedshiftSecretAccessRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -238,6 +239,30 @@ Resources:
               - Effect: 'Allow'
                 Action: 'secretsmanager:GetSecretValue'
                 Resource: '*'
+
+# Lambda role for creating folders
+  S3LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${EnvType}-${DomainName}-S3LambdaExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: S3Access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource: '*'              
 
 Outputs: 
   DMSIAMRole:
@@ -268,5 +293,10 @@ Outputs:
     Value: !GetAtt SSMParamsRole.Arn  
   RedshiftSecretAccessRoleArn:
     Description: 'ARN of the Redshift Secret Access Role'
-    Value: !GetAtt RedshiftSecretAccessRole.Arn    
+    Value: !GetAtt RedshiftSecretAccessRole.Arn
+  S3LambdaExecutionRoleArn:
+    Description: 'S3 LambdaExecution Access Role'
+    Value: !GetAtt S3LambdaExecutionRole.Arn  
+
+
                 

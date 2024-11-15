@@ -10,6 +10,9 @@ Parameters:
   DomainName:
     Type: String
     Description: The name of the domain
+  S3LambdaExecutionRoleArn:
+    Description: IAM role arn
+    Type: String  
 
 Resources:
   LandingS3Bucket:
@@ -49,6 +52,303 @@ Resources:
             Condition:
               Bool:
                 aws:SecureTransport: "false"  
+  
+   # Lambda function to create folders
+  CreateFoldersFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.9
+      Handler: index.handler
+      Role: !Ref S3LambdaExecutionRoleArn
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+          
+          def handler(event, context):
+              try:
+                  if event['RequestType'] in ['Create', 'Update']:
+                      s3 = boto3.client('s3')
+                      bucket_name = event['ResourceProperties']['BucketName']
+                      folders = event['ResourceProperties']['Folders']
+                      
+                      for folder in folders:
+                          s3.put_object(
+                              Bucket=bucket_name,
+                              Key=f'{folder}/',
+                              Body=''
+                          )
+                      
+                      response_data = {'Message': 'Folders created successfully'}
+                      cfnresponse.send(event, context, cfnresponse.SUCCESS, response_data)
+                  elif event['RequestType'] == 'Delete':
+                      cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
+              except Exception as e:
+                  print(e)
+                  cfnresponse.send(event, context, cfnresponse.FAILED, {'Error': str(e)})
+      Timeout: 30
+
+  # Custom resource to create folders
+  CreateFolders:
+    Type: Custom::CreateFolders
+    DependsOn: LandingS3Bucket
+    Properties:
+      ServiceToken: !GetAtt CreateFoldersFunction.Arn
+      BucketName: !Ref LandingS3Bucket
+      Folders:
+        - 'CRM'
+        - 'BRM'
+        - 'Mediation'
+        - 'Matrix'
+        - 'Genesys'
+
+  # IAM Users
+  SvcCrmDevUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: 
+         Fn::Join:
+          - "_"
+          - [ "svc", "crm", !Ref EnvType]
+      Path: "/"
+
+  SvcBrmDevUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: 
+         Fn::Join:
+          - "_"
+          - [ "svc", "brm", !Ref EnvType]
+      Path: "/"
+
+  SvcMediationDevUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: 
+         Fn::Join:
+            - "_"
+            - [ "svc", "mediation", !Ref EnvType]
+      Path: "/"
+
+  SvcMatrixDevUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName:
+        Fn::Join:
+          - "_"
+          - [ "svc", "matrix", !Ref EnvType]
+      Path: "/"   
+
+  SvcGenesysDevUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName:
+        Fn::Join:
+          - "_"
+          - [ "svc", "genesys", !Ref EnvType]
+      Path: "/"      
+
+  # Access Points
+  CrmApDevAccessPoint:
+    Type: AWS::S3::AccessPoint
+    Properties:
+      Bucket: !Ref LandingS3Bucket
+      Name:
+        Fn::Join:
+          - "-"
+          - [ "crm", "ap", !Ref EnvType]
+      Policy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !GetAtt SvcCrmDevUser.Arn
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:ListBucket
+            Resource:
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/crm-ap-${EnvType}/object/CRM/*'
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/crm-ap-${EnvType}'
+
+  BrmApDevAccessPoint:
+    Type: AWS::S3::AccessPoint
+    Properties:
+      Bucket: !Ref LandingS3Bucket
+      Name:
+       Fn::Join:
+          - "-"
+          - [ "brm", "ap", !Ref EnvType]
+      Policy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !GetAtt SvcBrmDevUser.Arn
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:ListBucket
+            Resource:
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/brm-ap-${EnvType}/object/BRM/*'
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/brm-ap-${EnvType}'
+
+  MediationApDevAccessPoint:
+    Type: AWS::S3::AccessPoint
+    Properties:
+      Bucket: !Ref LandingS3Bucket
+      Name:
+       Fn::Join:
+          - "-"
+          - [ "mediation", "ap", !Ref EnvType]
+      Policy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !GetAtt SvcMediationDevUser.Arn
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:ListBucket
+            Resource:
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/mediation-ap-${EnvType}/object/Mediation/*'
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/mediation-ap-${EnvType}'
+
+  MatrixApDevAccessPoint:
+    Type: AWS::S3::AccessPoint
+    Properties:
+      Bucket: !Ref LandingS3Bucket
+      Name:
+        Fn::Join:
+          - "-"
+          - [ "matrix", "ap", !Ref EnvType]
+      Policy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !GetAtt SvcMatrixDevUser.Arn
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:ListBucket
+            Resource:
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/matrix-ap-${EnvType}/object/Matrix/*'
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/matrix-ap-${EnvType}'
+
+  GenesysApDevAccessPoint:
+    Type: AWS::S3::AccessPoint
+    Properties:
+      Bucket: !Ref LandingS3Bucket
+      Name:
+        Fn::Join:
+          - "-"
+          - [ "genesys", "ap", !Ref EnvType]
+      Policy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !GetAtt SvcGenesysDevUser.Arn
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:ListBucket
+            Resource:
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/genesys-ap-${EnvType}/object/Genesys/*'
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/genesys-ap-${EnvType}'
+
+  # IAM Policies for Users
+  SvcCrmDevUserPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: SvcCrmDevUser-access-policy
+      Users: 
+        - !Ref SvcCrmDevUser
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:ListBucket
+            Resource:
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/crm-ap-${EnvType}/object/CRM/*'
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/crm-ap-${EnvType}'
+
+  SvcBrmDevUserPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: SvcBrmDevUser-access-policy
+      Users: 
+        - !Ref SvcBrmDevUser
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:ListBucket
+            Resource:
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/brm-ap-${EnvType}/object/BRM/*'
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/brm-ap-${EnvType}'
+
+  SvcMediationDevUserPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: SvcMediationDevUser-access-policy
+      Users: 
+        - !Ref SvcMediationDevUser
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:ListBucket
+            Resource:
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/mediation-ap-${EnvType}/object/Mediation/*'
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/mediation-ap-${EnvType}'
+
+  SvcMatrixDevUserPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: SvcMatrixDevUser-access-policy
+      Users: 
+        - !Ref SvcMatrixDevUser
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:ListBucket
+            Resource:
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/matrix-ap-${EnvType}/object/Matrix/*'
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/matrix-ap-${EnvType}'
+
+  SvcGenesysDevUserPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: SvcGenesysDevUser-access-policy
+      Users: 
+        - !Ref SvcGenesysDevUser
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:ListBucket
+            Resource:
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/genesys-ap-${EnvType}/object/Genesys/*'
+              - !Sub 'arn:aws:s3:${AWS::Region}:${AWS::AccountId}:accesspoint/genesys-ap-${EnvType}'
 
   RawS3Bucket:
     Type: 'AWS::S3::Bucket'
@@ -136,3 +436,23 @@ Outputs:
   TrustedS3BucketName:
     Description: The name of the Trusted S3 bucket
     Value: !Ref TrustedS3Bucket
+
+  CrmAccessPointAlias:
+    Description: Access Point alias for CRM
+    Value: !GetAtt CrmApDevAccessPoint.Name
+
+  BrmAccessPointAlias:
+    Description: Access Point alias for BRM
+    Value: !GetAtt BrmApDevAccessPoint.Name
+
+  MediationAccessPointAlias:
+    Description: Access Point alias for Mediation
+    Value: !GetAtt MediationApDevAccessPoint.Name
+
+  MatrixAccessPointAlias:
+    Description: Access Point alias for Matrix
+    Value: !GetAtt MatrixApDevAccessPoint.Name
+
+  GenesysAccessPointAlias:
+    Description: Access Point alias for Genesys
+    Value: !GetAtt GenesysApDevAccessPoint.Name  

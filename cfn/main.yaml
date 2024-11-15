@@ -213,6 +213,7 @@ Resources:
       Parameters:
         EnvType: !Ref EnvType
         DomainName: !Ref DomainName
+        S3LambdaExecutionRoleArn: !GetAtt IAMRoleStack.Outputs.S3LambdaExecutionRoleArn
 
   GlueDatabase:
     Type: AWS::CloudFormation::Stack
@@ -411,4 +412,6 @@ Outputs:
   RedshiftSecretAccessRoleArn:
     Description: 'ARN of the SSMParams Role'
     Value: !GetAtt IAMRoleStack.Outputs.RedshiftSecretAccessRoleArn        
-
+  S3LambdaExecutionRoleArn:
+    Description: 'ARN of the S3LambdaExecution Role'
+    Value: !GetAtt IAMRoleStack.Outputs.S3LambdaExecutionRoleArn
