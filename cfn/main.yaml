@@ -352,7 +352,7 @@ Resources:
       Parameters:
         EnvType: !Ref EnvType
         DomainName: !Ref DomainName
-        AirflowBucketArn: !GetAtt s3buckets.Outputs.AirflowDagS3BucketArn
+        AirflowDagS3BucketArn: !GetAtt s3buckets.Outputs.AirflowDagS3BucketArn
         S3DagFolder: !Ref S3DagFolder
         AirflowExecutionRoleArn: !GetAtt IAMRoleStack.Outputs.AirflowExecutionRoleArn         
 
