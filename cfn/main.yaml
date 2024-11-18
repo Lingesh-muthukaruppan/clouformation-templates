@@ -352,7 +352,7 @@ Resources:
       Parameters:
         EnvType: !Ref EnvType
         DomainName: !Ref DomainName
-        AirflowBucketName: s3buckets.Outputs.AirflowDagS3BucketName
+        AirflowBucketArn: !GetAtt s3buckets.Outputs.AirflowDagS3BucketArn
         S3DagFolder: !Ref S3DagFolder
         AirflowExecutionRoleArn: !GetAtt IAMRoleStack.Outputs.AirflowExecutionRoleArn         
 
@@ -367,7 +367,7 @@ Outputs:
     Description: The name of the Trusted S3 bucket
     Value: !GetAtt s3buckets.Outputs.TrustedS3BucketName
   AirflowDagS3BucketName:
-    Description: The name of the Trusted S3 bucket
+    Description: The name of the S3 bucket for Airflow DAGs
     Value: !GetAtt s3buckets.Outputs.AirflowDagS3BucketName 
   DatabaseName:
     Description: 'Name of the Glue Database'
@@ -440,4 +440,7 @@ Outputs:
     Value: !GetAtt IAMRoleStack.Outputs.S3LambdaExecutionRoleArn
   AirflowExecutionRoleArn:
     Description: 'ARN of the Access AirflowExecution Role'
-    Value: !GetAtt IAMRoleStack.Outputs.AirflowExecutionRoleArn   
+    Value: !GetAtt IAMRoleStack.Outputs.AirflowExecutionRoleArn
+  AirflowDagS3BucketArn:
+    Description: The ARN of the Airflow Dag S3 bucket
+    Value: !GetAtt s3buckets.Outputs.AirflowDagS3BucketArn    

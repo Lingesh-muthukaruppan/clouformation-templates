@@ -10,9 +10,9 @@ Parameters:
     Type: String
     Description: The name of the domain
 
-  AirflowBucketName:
+  AirflowBucketArn:
     Type: String
-    Description: Name of the S3 bucket for Airflow DAGs 
+    Description: The ARN of the Airflow Dag S3 bucket 
 
   S3DagFolder:
     Type: String
@@ -180,7 +180,7 @@ Resources:
           - "-"
           - [ "tpgt", !Ref DomainName, !Ref EnvType, "airflow"]
       ExecutionRoleArn: !Ref AirflowExecutionRoleArn
-      SourceBucketArn: !Join ["", ["arn:aws:s3:::", !Ref AirflowBucketName]]
+      SourceBucketArn: !Ref AirflowBucketArn
       DagS3Path: !Ref S3DagFolder
       AirflowVersion: '2.10.1'
       EnvironmentClass: mw1.medium
