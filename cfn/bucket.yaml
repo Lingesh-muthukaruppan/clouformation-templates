@@ -515,7 +515,7 @@ Outputs:
     Value: !Ref AirflowS3DagBucket
   AirflowDagS3BucketArn:
     Description: The Arn of the DAG S3 bucket storage
-    Value: !Get AirflowS3DagBucket.Arn    
+    Value: !Get AirflowS3DagBucket.Arn
 
   CrmAccessPointAlias:
     Description: Access Point alias for CRM
