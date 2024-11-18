@@ -262,7 +262,70 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:PutObject
-                Resource: '*'              
+                Resource: '*' 
+
+ ### IAM Role for MWAA Execution ###
+  AirflowExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${EnvType}-${DomainName}-AirflowExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+                - airflow.amazonaws.com
+                - airflow-env.amazonaws.com
+            Action: 
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: MWAAExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - airflow:PublishMetrics
+                  - airflow:CreateWebLoginToken
+                Resource:
+                  - !Sub arn:aws:airflow:${AWS::Region}:${AWS::AccountId}:environment/*
+              - Effect: Allow
+                Action:
+                  - s3:ListAllMyBuckets
+                Resource:
+                  - '*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject*
+                  - s3:GetBucket*
+                  - s3:List*
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:CreateLogGroup
+                  - logs:PutLogEvents
+                  - logs:GetLogEvents
+                  - logs:GetLogRecord
+                  - logs:GetLogGroupFields
+                  - logs:GetQueryResults
+                  - logs:DescribeLogGroups
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*
+              - Effect: Allow
+                Action:
+                  - logs:DescribeLogGroups
+                Resource:
+                  - '*'
+              - Effect: Allow
+                Action:
+                  - cloudwatch:PutMetricData
+                Resource:
+                  - '*'
 
 Outputs: 
   DMSIAMRole:
@@ -296,7 +359,11 @@ Outputs:
     Value: !GetAtt RedshiftSecretAccessRole.Arn
   S3LambdaExecutionRoleArn:
     Description: 'S3 LambdaExecution Access Role'
-    Value: !GetAtt S3LambdaExecutionRole.Arn  
+    Value: !GetAtt S3LambdaExecutionRole.Arn 
+  AirflowExecutionRoleArn:
+    Description: 'Airflow Execution Access Role'
+    Value: !GetAtt AirflowExecutionRole.Arn   
+    
 
 
                 

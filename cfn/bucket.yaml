@@ -11,8 +11,11 @@ Parameters:
     Type: String
     Description: The name of the domain
   S3LambdaExecutionRoleArn:
+    Type: String
     Description: IAM role arn
-    Type: String  
+  S3DagFolder:
+    Type: String
+    Description: Path in the S3 bucket for Airflow DAGs    
 
 Resources:
   LandingS3Bucket:
@@ -424,7 +427,77 @@ Resources:
               - !Sub "arn:aws:s3:::${TrustedS3Bucket}/*"
             Condition:
               Bool:
-                aws:SecureTransport: "false"                        
+                aws:SecureTransport: "false"  
+
+  AirflowS3DagBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: 
+         Fn::Join:
+          - "-"
+          - [ "tpg", !Ref DomainName, "airflow", "dags"]
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256        
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: Private
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireOldVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 30
+            
+  AirflowDagBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref AirflowS3DagBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowOnlyHttpsRequests
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource: 
+              - !Sub "arn:aws:s3:::${AirflowS3DagBucket}"
+              - !Sub "arn:aws:s3:::${AirflowS3DagBucket}/*"
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+                
+# Lambda function to create empty folder
+  CreateEmptyFolderFunctiondags:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.9
+      Handler: index.handler
+      Role: !GetAtt S3LambdaExecutionRoleArn
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+          def handler(event, context):
+            try:
+              if event['RequestType'] in ['Create', 'Update']:
+                s3 = boto3.client('s3')
+                bucket = event['ResourceProperties']['BucketName']
+                folder = event['ResourceProperties']['FolderName']
+                s3.put_object(Bucket=bucket, Key=f"{folder}/")
+              cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
+            except Exception as e:
+              cfnresponse.send(event, context, cfnresponse.FAILED, {"Error": str(e)})
+      Timeout: 30
+
+  # Custom resource to create empty folder
+  DagsFolder:
+    Type: Custom::S3Folder
+    Properties:
+      ServiceToken: !GetAtt CreateEmptyFolderFunctiondags.Arn
+      BucketName: !Ref AirflowS3DagBucket
+      FolderName: !Ref S3DagFolder
+
 
 Outputs:
   LandingBucketName:
@@ -436,6 +509,9 @@ Outputs:
   TrustedS3BucketName:
     Description: The name of the Trusted S3 bucket
     Value: !Ref TrustedS3Bucket
+  AirflowDagS3BucketName:
+    Description: The name of the DAG S3 bucket storage
+    Value: !Ref AirflowS3DagBucket  
 
   CrmAccessPointAlias:
     Description: Access Point alias for CRM
@@ -455,4 +531,8 @@ Outputs:
 
   GenesysAccessPointAlias:
     Description: Access Point alias for Genesys
-    Value: !GetAtt GenesysApDevAccessPoint.Name  
+    Value: !GetAtt GenesysApDevAccessPoint.Name 
+
+  DagsFolderPath:
+    Description: Full path to the DAGs folder
+    Value: !Sub "s3://${AirflowS3DagBucket}/${S3DagFolder}/"   

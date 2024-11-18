@@ -1,0 +1,227 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to deploy Amazon MWAA (Managed Workflows for Apache Airflow).
+
+Parameters:
+  EnvType:
+    Type: String
+    Default: "dev"
+    Description: The environment type (e.g., prod, dev)
+  DomainName:
+    Type: String
+    Description: The name of the domain
+
+  AirflowBucketName:
+    Type: String
+    Description: Name of the S3 bucket for Airflow DAGs 
+
+  S3DagFolder:
+    Type: String
+    Description: Path in the S3 bucket for Airflow DAGs     
+    
+  AirflowExecutionRoleArn:
+    Type: String
+    Description: IAM role arn
+
+Resources:
+  ### VPC Configuration ###
+  MWAAVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.192.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: MWAA-VPC
+
+  ### Internet Gateway ###
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MWAAVPC
+      InternetGatewayId: !Ref InternetGateway
+
+  ### Public Subnets ###
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MWAAVPC
+      CidrBlock: 10.192.10.0/24
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: MWAA-Public-Subnet-1
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MWAAVPC
+      CidrBlock: 10.192.11.0/24
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: MWAA-Public-Subnet-2
+
+  ### Private Subnets ###
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MWAAVPC
+      CidrBlock: 10.192.20.0/24
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: MWAA-Private-Subnet-1
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MWAAVPC
+      CidrBlock: 10.192.21.0/24
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      Tags:
+        - Key: Name
+          Value: MWAA-Private-Subnet-2
+
+  ### NAT Gateway ###
+  NatGatewayEIP:
+    Type: AWS::EC2::EIP
+    DependsOn: AttachGateway
+    Properties:
+      Domain: vpc
+
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGatewayEIP.AllocationId
+      SubnetId: !Ref PublicSubnet1
+
+  ### Route Tables ###
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MWAAVPC
+      Tags:
+        - Key: Name
+          Value: MWAA-Public-RT
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MWAAVPC
+      Tags:
+        - Key: Name
+          Value: MWAA-Private-RT
+
+  PrivateRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway
+
+  ### Route Table Associations ###
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+  PrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnet1
+      RouteTableId: !Ref PrivateRouteTable
+
+  PrivateSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnet2
+      RouteTableId: !Ref PrivateRouteTable
+
+  ### Security Group ###
+  MWAASecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for MWAA Environment
+      VpcId: !Ref MWAAVPC
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 10.192.0.0/16
+      Tags:
+        - Key: Name
+          Value: MWAA-Security-Group    
+      
+  ### MWAA Environment ###
+  MWAAEnvironment:
+    Type: AWS::MWAA::Environment
+    Properties:
+      Name:
+        Fn::Join:
+          - "-"
+          - [ "tpgt", !Ref DomainName, !Ref EnvType, "airflow"]
+      ExecutionRoleArn: !Ref AirflowExecutionRoleArn
+      SourceBucketArn: !Sub "arn:aws:s3:::${AirflowBucketName}"
+      DagS3Path: !Ref S3DagFolder
+      AirflowVersion: '2.10.1'
+      EnvironmentClass: mw1.medium
+      MaxWorkers: 2
+      NetworkConfiguration:
+        SecurityGroupIds:
+          - !Ref MWAASecurityGroup
+        SubnetIds:
+          - !Ref PrivateSubnet1
+          - !Ref PrivateSubnet2
+      LoggingConfiguration:
+        DagProcessingLogs:
+          Enabled: true
+          LogLevel: INFO
+        SchedulerLogs:
+          Enabled: true
+          LogLevel: INFO
+        WebserverLogs:
+          Enabled: true
+          LogLevel: INFO
+        WorkerLogs:
+          Enabled: true
+          LogLevel: INFO
+        TaskLogs:
+          Enabled: true
+          LogLevel: INFO
+      WebserverAccessMode: PRIVATE_ONLY
+
+Outputs:
+  EnvironmentName:
+    Value: !Ref MWAAEnvironment
+    Description: Name of the MWAA environment
+
+  VPCId:
+    Value: !Ref MWAAVPC
+    Description: VPC ID
+
+  PrivateSubnet1:
+    Value: !Ref PrivateSubnet1
+    Description: Private Subnet 1 ID
+
+  PrivateSubnet2:
+    Value: !Ref PrivateSubnet2
+    Description: Private Subnet 2 ID

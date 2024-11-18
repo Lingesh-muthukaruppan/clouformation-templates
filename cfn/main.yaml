@@ -18,6 +18,11 @@ Parameters:
   BucketFilePath:
     Type: String
     Description: bucket yaml path
+  S3DagFolder:
+    Type: String
+    Description: Path in the S3 bucket for Airflow DAGs
+    Default: dags
+
 #GlueDB Parameters
   GlueDBPath:
     Type: String
@@ -195,7 +200,12 @@ Parameters:
  #SNS Parameters
   SnsStackUrl:
     Type: String
-    Description: 'Name of the SNS Stack Url'         
+    Description: 'Name of the SNS Stack Url' 
+
+  #Airflow Parameters
+  AirflowStackUrl:
+    Type: String
+    Description: 'Name of the Airflow Stack Url'   
 
 Resources:
   IAMRoleStack:
@@ -213,6 +223,7 @@ Resources:
       Parameters:
         EnvType: !Ref EnvType
         DomainName: !Ref DomainName
+        S3DagFolder: !Ref S3DagFolder
         S3LambdaExecutionRoleArn: !GetAtt IAMRoleStack.Outputs.S3LambdaExecutionRoleArn
 
   GlueDatabase:
@@ -333,8 +344,17 @@ Resources:
       Parameters:
         EnvType: !Ref EnvType
         DomainName: !Ref DomainName
-        
-              
+
+  AirflowStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref AirflowStackUrl
+      Parameters:
+        EnvType: !Ref EnvType
+        DomainName: !Ref DomainName
+        AirflowBucketName: s3buckets.Outputs.AirflowDagS3BucketName
+        S3DagFolder: !Ref S3DagFolder
+        AirflowExecutionRoleArn: !GetAtt IAMRoleStack.Outputs.AirflowExecutionRoleArn         
 
 Outputs:
   LandingBucketName:
@@ -346,6 +366,9 @@ Outputs:
   TrustedS3BucketName:
     Description: The name of the Trusted S3 bucket
     Value: !GetAtt s3buckets.Outputs.TrustedS3BucketName
+  AirflowDagS3BucketName:
+    Description: The name of the Trusted S3 bucket
+    Value: !Ref AirflowS3DagBucket  
   DatabaseName:
     Description: 'Name of the Glue Database'
     Value:  !GetAtt GlueDatabase.Outputs.DatabaseName
@@ -415,3 +438,6 @@ Outputs:
   S3LambdaExecutionRoleArn:
     Description: 'ARN of the S3LambdaExecution Role'
     Value: !GetAtt IAMRoleStack.Outputs.S3LambdaExecutionRoleArn
+  AirflowExecutionRoleArn:
+    Description: 'ARN of the Access AirflowExecution Role'
+    Value: !GetAtt IAMRoleStack.Outputs.AirflowExecutionRoleArn   
