@@ -473,7 +473,7 @@ Resources:
     Properties:
       Runtime: python3.9
       Handler: index.handler
-      Role: !GetAtt S3LambdaExecutionRoleArn
+      Role: !Ref S3LambdaExecutionRoleArn
       Code:
         ZipFile: |
           import boto3
@@ -493,6 +493,7 @@ Resources:
   # Custom resource to create empty folder
   DagsFolder:
     Type: Custom::S3Folder
+    DependsOn: AirflowS3DagBucket
     Properties:
       ServiceToken: !GetAtt CreateEmptyFolderFunctiondags.Arn
       BucketName: !Ref AirflowS3DagBucket
@@ -531,8 +532,4 @@ Outputs:
 
   GenesysAccessPointAlias:
     Description: Access Point alias for Genesys
-    Value: !GetAtt GenesysApDevAccessPoint.Name 
-
-  DagsFolderPath:
-    Description: Full path to the DAGs folder
-    Value: !Sub "s3://${AirflowS3DagBucket}/${S3DagFolder}/"   
+    Value: !GetAtt GenesysApDevAccessPoint.Name   
