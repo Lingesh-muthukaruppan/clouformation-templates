@@ -180,7 +180,7 @@ Resources:
           - "-"
           - [ "tpgt", !Ref DomainName, !Ref EnvType, "airflow"]
       ExecutionRoleArn: !Ref AirflowExecutionRoleArn
-      SourceBucketArn: !Sub "arn:aws:s3:::${AirflowBucketName}"
+      SourceBucketArn: !Join ["", ["arn:aws:s3:::", !Ref AirflowBucketName]]
       DagS3Path: !Ref S3DagFolder
       AirflowVersion: '2.10.1'
       EnvironmentClass: mw1.medium
