@@ -368,7 +368,7 @@ Outputs:
     Value: !GetAtt s3buckets.Outputs.TrustedS3BucketName
   AirflowDagS3BucketName:
     Description: The name of the Trusted S3 bucket
-    Value: !Ref AirflowS3DagBucket  
+    Value: !GetAtt s3buckets.Outputs.AirflowDagS3BucketName 
   DatabaseName:
     Description: 'Name of the Glue Database'
     Value:  !GetAtt GlueDatabase.Outputs.DatabaseName
