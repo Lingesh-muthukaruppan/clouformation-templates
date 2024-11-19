@@ -188,10 +188,10 @@ Parameters:
     Description: The number of days to retain log events 
 
   #DBT ECR parameters
-  # RepositoryName:
-  #   Type: String
-  #   Description: Name of the ECR repository
-  #   Default: dbt-redshift-repo 
+  RepositoryName:
+    Type: String
+    Description: Name of the ECR repository
+    Default: dbt-redshift-repo 
     
   EcrDbtStackUrl:
     Type: String
