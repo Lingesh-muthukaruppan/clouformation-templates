@@ -208,9 +208,9 @@ Parameters:
     Description: 'Name of the Airflow Stack Url' 
 
   #ECS Parameters
-  # EcsDbtStackUrl:
-  #   Type: String
-  #   Description: 'Name of the ECS DBT Stack Url'     
+  EcsDbtStackUrl:
+    Type: String
+    Description: 'Name of the ECS DBT Stack Url'     
 
 Resources:
   IAMRoleStack:
@@ -361,15 +361,15 @@ Resources:
         S3DagFolder: !Ref S3DagFolder
         AirflowExecutionRoleArn: !GetAtt IAMRoleStack.Outputs.AirflowExecutionRoleArn 
 
-  # EcsDbt:
-  #   Type: AWS::CloudFormation::Stack
-  #   Properties:
-  #     TemplateURL: !Ref EcsDbtStackUrl
-  #     Parameters:
-  #       EnvType: !Ref EnvType
-  #       DomainName: !Ref DomainName
-  #       RepositoryName: !Ref RepositoryName
-  #       ECSTaskExecutionRoleArn: !GetAtt IAMRoleStack.Outputs.ECSTaskExecutionRoleArn             
+  EcsDbt:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref EcsDbtStackUrl
+      Parameters:
+        EnvType: !Ref EnvType
+        DomainName: !Ref DomainName
+        RepositoryName: !Ref RepositoryName
+        ECSTaskExecutionRoleArn: !GetAtt IAMRoleStack.Outputs.ECSTaskExecutionRoleArn             
 
 Outputs:
   LandingBucketName:
