@@ -205,7 +205,12 @@ Parameters:
   #Airflow Parameters
   AirflowStackUrl:
     Type: String
-    Description: 'Name of the Airflow Stack Url'   
+    Description: 'Name of the Airflow Stack Url' 
+    
+  #ECS Parameters
+  EcsDbtStackUrl:
+    Type: String
+    Description: 'Name of the ECS DBT Stack Url'     
 
 Resources:
   IAMRoleStack:
