@@ -56,7 +56,7 @@ Resources:
               Bool:
                 aws:SecureTransport: "false"  
   
-   # Lambda function to create folders
+  # Lambda function to create folders
   CreateFoldersFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -467,7 +467,7 @@ Resources:
               Bool:
                 aws:SecureTransport: "false"
                 
-# Lambda function to create empty folder
+# Lambda function to create empty folder for DAGS
   CreateEmptyFolderFunctiondags:
     Type: AWS::Lambda::Function
     Properties:
@@ -490,7 +490,7 @@ Resources:
               cfnresponse.send(event, context, cfnresponse.FAILED, {"Error": str(e)})
       Timeout: 30
 
-  # Custom resource to create empty folder
+  # Custom resource to create empty folder for DAGS
   DagsFolder:
     Type: Custom::S3Folder
     DependsOn: AirflowS3DagBucket
@@ -535,4 +535,4 @@ Outputs:
 
   GenesysAccessPointAlias:
     Description: Access Point alias for Genesys
-    Value: !GetAtt GenesysApDevAccessPoint.Name   
+    Value: !GetAtt GenesysApDevAccessPoint.Name  

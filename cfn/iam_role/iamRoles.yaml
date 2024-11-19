@@ -83,7 +83,7 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service: "lambda.amazonaws.com"  # Replace this with the service or entity that will assume the role
+              Service: "lambda.amazonaws.com"
             Action: "sts:AssumeRole"
       Policies:
         - PolicyName: SQSAccessPolicy
@@ -169,6 +169,8 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                   - ecr:*
+
+ # SSM Parameters Role                 
   SSMParamsRole:
     Type: AWS::IAM::Role
     Properties:
@@ -326,7 +328,7 @@ Resources:
                   - cloudwatch:PutMetricData
                 Resource:
                   - '*'
-   # ECS Task Execution Role
+  # ECS Task Execution Role
   ECSTaskExecutionRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -401,8 +403,4 @@ Outputs:
     Value: !GetAtt AirflowExecutionRole.Arn
   ECSTaskExecutionRoleArn:
     Description: 'Arn of the ECSTaskExecution Access Role'
-    Value: !GetAtt ECSTaskExecutionRole.Arn     
-    
-
-
-                
+    Value: !GetAtt ECSTaskExecutionRole.Arn               
