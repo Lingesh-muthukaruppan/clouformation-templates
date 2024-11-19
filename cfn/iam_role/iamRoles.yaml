@@ -326,6 +326,42 @@ Resources:
                   - cloudwatch:PutMetricData
                 Resource:
                   - '*'
+   # ECS Task Execution Role
+  ECSTaskExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub ${EnvType}-${DomainName}-ECSTaskExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: ecsTaskExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:GetAuthorizationToken
+                  - ecr:BatchCheckLayerAvailability
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:CreateLogGroup
+                  - logs:DescribeLogStreams
+                  - logs:GetLogEvents
+                  - ecs:StartTask
+                  - ssm:SendCommand
+                  - ssm:GetCommandInvocation
+                Resource: "*"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
 
 Outputs: 
   DMSIAMRole:
@@ -358,11 +394,14 @@ Outputs:
     Description: 'ARN of the Redshift Secret Access Role'
     Value: !GetAtt RedshiftSecretAccessRole.Arn
   S3LambdaExecutionRoleArn:
-    Description: 'S3 LambdaExecution Access Role'
+    Description: 'Arn of the S3 LambdaExecution Access Role'
     Value: !GetAtt S3LambdaExecutionRole.Arn 
   AirflowExecutionRoleArn:
-    Description: 'Airflow Execution Access Role'
-    Value: !GetAtt AirflowExecutionRole.Arn   
+    Description: 'Arn of the Airflow Execution Access Role'
+    Value: !GetAtt AirflowExecutionRole.Arn
+  ECSTaskExecutionRoleArn:
+    Description: 'Arn of the ECSTaskExecution Access Role'
+    Value: !GetAtt ECSTaskExecutionRole.Arn     
     
 
 

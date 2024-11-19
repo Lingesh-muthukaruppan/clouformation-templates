@@ -1,42 +1,24 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Resources:
-  # ECS Task Execution Role
-  ECSTaskExecutionRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      RoleName: ECSTaskExecutionRole
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action: sts:AssumeRole
-      Path: "/"
-      Policies:
-        - PolicyName: ecsTaskExecutionPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - ecr:GetDownloadUrlForLayer
-                  - ecr:BatchGetImage
-                  - ecr:GetAuthorizationToken
-                  - ecr:BatchCheckLayerAvailability
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                  - logs:CreateLogGroup
-                  - logs:DescribeLogStreams
-                  - logs:GetLogEvents
-                  - ecs:StartTask
-                  - ssm:SendCommand
-                  - ssm:GetCommandInvocation
-                Resource: "*"
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+Description: CloudFormation template to deploy ECS DBT Elementary.
 
+Parameters:
+  EnvType:
+    Type: String
+    Default: "dev"
+    Description: The environment type (e.g., prod, dev)
+  DomainName:
+    Type: String
+    Description: The name of the domain
+
+  RepositoryName:
+    Type: String
+    Description: Name of the ECR repository  
+
+  ECSTaskExecutionRoleArn:
+    Type: String
+    Description: The ARN of the ECS Task
+
+Resources:
  # CloudWatch Log Group for Container Logs
   LogGroup:
     Type: AWS::Logs::LogGroup
@@ -48,7 +30,10 @@ Resources:
   DbtEcsCluster:
     Type: AWS::ECS::Cluster
     Properties: 
-      ClusterName: "DBTECSCluster"
+      ClusterName:
+         Fn::Join:
+          - "-"
+          - [ "tpgt", !Ref EnvType, "DBTECSCluster"]
 
   # ECS Task Definition
   DbtTaskDefinition:
@@ -60,11 +45,14 @@ Resources:
       Cpu: "1024" 
       Memory: "2048"
       NetworkMode: awsvpc
-      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
-      TaskRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      ExecutionRoleArn: !Ref ECSTaskExecutionRoleArn
+      TaskRoleArn: !Ref ECSTaskExecutionRoleArn
       ContainerDefinitions:
-        - Name: dbt-elementary-container
-          Image: 451541759827.dkr.ecr.us-east-1.amazonaws.com/dbt-redshift-repo:latest
+        - Name:
+            Fn::Join:
+              - "-"
+              - [ "tpgt", !Ref EnvType, "dbt-elementary-container"]
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${RepositoryName}:latest
           Essential: true
           PortMappings:
             - ContainerPort: 80

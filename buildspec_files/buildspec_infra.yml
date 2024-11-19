@@ -61,7 +61,10 @@ phases:
         echo $snsfile 
         airflowfilename="airflow.yaml"
         airflowfile=$CODEBUILD_SRC_DIR/cfn/"${airflowfilename}"
-        echo $airflowfile      
+        echo $airflowfile
+        dbtecsfilename="dbt_ecs_elementary.yaml"
+        dbtecstfile=$CODEBUILD_SRC_DIR/cfn/"${dbtecsfilename}"
+        echo $dbtecstfile      
         aws s3 cp $iamrolefile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $bucketfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $gluedbfile s3://tpg-my-bucket/cicd-files/
@@ -75,7 +78,8 @@ phases:
         aws s3 cp $gluejobfile s3://tpg-my-bucket/cicd-files/  
         aws s3 cp $dbtredshiftfile s3://tpg-my-bucket/cicd-files/
         aws s3 cp $snsfile s3://tpg-my-bucket/cicd-files/
-        aws s3 cp $airflowfile s3://tpg-my-bucket/cicd-files/      
+        aws s3 cp $airflowfile s3://tpg-my-bucket/cicd-files/
+        aws s3 cp $dbtecstfile s3://tpg-my-bucket/cicd-files/      
         iamroleurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/iamRoles.yaml
         bucketurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/bucket.yaml
         GlueDBurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/glue_database.yaml
@@ -90,12 +94,21 @@ phases:
         dbtredshifturl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dbt_redshift_ecr.yaml
         snsurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/sns.yaml
         airflowurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/airflow.yaml
+        dbtecsurl=https://s3.amazonaws.com/tpg-my-bucket/cicd-files/dbt_ecs_elementary.yaml
 
         aws cloudformation deploy \
           --template-file $cfnfile \
           --stack-name tpg-stack \
           --parameter-overrides EnvType="${env}" DomainName="${domain}" IamRoleUrl="${iamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}" MacieStackUrl="${macieurl}" SqsStackUrl="${sqsurl}" GlueJobPath="${gluejoburl}" EcrDbtStackUrl="${dbtredshifturl}" SnsStackUrl="${snsurl}" AirflowStackUrl="${airflowurl}" \
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
+
+        aws codebuild start-build --project-name dbt-redshift-stack-dbt-docker-build 
+
+        aws cloudformation deploy \
+          --template-file $cfnfile \
+          --stack-name tpg-stack \
+          --parameter-overrides EnvType="${env}" DomainName="${domain}" EcsDbtStackUrl="${dbtecsurl}" \
+          --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM  
   post_build:
     commands:
       - aws cloudformation describe-stack-events --stack-name tpg-stack

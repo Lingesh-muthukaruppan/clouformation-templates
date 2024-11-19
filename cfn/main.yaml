@@ -354,7 +354,17 @@ Resources:
         DomainName: !Ref DomainName
         AirflowDagS3BucketArn: !GetAtt s3buckets.Outputs.AirflowDagS3BucketArn
         S3DagFolder: !Ref S3DagFolder
-        AirflowExecutionRoleArn: !GetAtt IAMRoleStack.Outputs.AirflowExecutionRoleArn         
+        AirflowExecutionRoleArn: !GetAtt IAMRoleStack.Outputs.AirflowExecutionRoleArn 
+
+  EcsDbt:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Ref EcsDbtStackUrl
+      Parameters:
+        EnvType: !Ref EnvType
+        DomainName: !Ref DomainName
+        RepositoryName: !Ref RepositoryName
+        ECSTaskExecutionRoleArn: !GetAtt IAMRoleStack.Outputs.ECSTaskExecutionRoleArn             
 
 Outputs:
   LandingBucketName:
@@ -442,5 +452,8 @@ Outputs:
     Description: 'ARN of the Access AirflowExecution Role'
     Value: !GetAtt IAMRoleStack.Outputs.AirflowExecutionRoleArn
   AirflowDagS3BucketArn:
-    Description: The ARN of the Airflow Dag S3 bucket
-    Value: !GetAtt s3buckets.Outputs.AirflowDagS3BucketArn    
+    Description: 'The ARN of the Airflow Dag S3 bucket'
+    Value: !GetAtt s3buckets.Outputs.AirflowDagS3BucketArn
+  ECSTaskExecutionRoleArn:
+    Description: 'The Arn of the ECSTaskExecution Access Role'
+    Value: !GetAtt IAMRoleStack.Outputs.ECSTaskExecutionRoleArn       
