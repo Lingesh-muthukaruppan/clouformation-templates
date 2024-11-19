@@ -101,8 +101,6 @@ phases:
           --stack-name tpg-stack \
           --parameter-overrides EnvType="${env}" DomainName="${domain}" IamRoleUrl="${iamroleurl}" BucketFilePath="${bucketurl}" GlueDBPath="${GlueDBurl}" GlueCrawlerPath="${GlueCrawlerurl}" DynamoDBStackUrl="${dynamodburl}" RedshiftVPCStackUrl="${redshiftvpcurl}" RedshiftServerlessStackUrl="${redshiftserverlessurl}" DMSStackUrl="${dmsurl}" MacieStackUrl="${macieurl}" SqsStackUrl="${sqsurl}" GlueJobPath="${gluejoburl}" EcrDbtStackUrl="${dbtredshifturl}" SnsStackUrl="${snsurl}" AirflowStackUrl="${airflowurl}" \
           --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
-        
-        aws codebuild start-build --project-name dbt-redshift-stack-dbt-docker-build
       
   post_build:
     commands:
